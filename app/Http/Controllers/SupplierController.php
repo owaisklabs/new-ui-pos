@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class SupplierController extends Controller
 {
@@ -36,7 +37,24 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        Supplier::create($request->all());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $supplier = Supplier::create($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Supplier created successfully',
+                'data' => $supplier,
+            ], JsonResponse::HTTP_CREATED);
+        }
+
         return redirect()->route('supplier.index');
     }
 

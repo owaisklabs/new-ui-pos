@@ -33,8 +33,8 @@
                     </div>
 
                     <div class="col-md-4 mb-3">
-                        <label for="publisher_id">Supplier <span class="text-danger">*</span></label>
-                        <select id=" publisher_id" required class="form-control " name="supplier_id">
+                        <label for="supplier_id">Supplier <span class="text-danger">*</span></label>
+                        <select id="supplier_id" required class="form-control" name="supplier_id">
                             <option value="">Select Supplier</option>
                             @foreach ($suppliers as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -123,6 +123,53 @@
         <button class="btn btn-primary  float-end mt-2" type="submit" data-bs-original-title=""
             title="">Create</button>
     </form>
+
+    <div class="modal fade" id="createSupplierModal" tabindex="-1" aria-labelledby="createSupplierModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createSupplierModalLabel">Create New Supplier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createSupplierForm">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="supplier_name" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input class="form-control" id="supplier_name" type="text" name="name" placeholder="Name"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="supplier_contact_person" class="form-label">Contact Person</label>
+                            <input class="form-control" id="supplier_contact_person" type="text" name="contact_person"
+                                placeholder="Contact Person">
+                        </div>
+                        <div class="mb-3">
+                            <label for="supplier_phone" class="form-label">Phone</label>
+                            <input class="form-control" id="supplier_phone" type="text" name="phone"
+                                placeholder="Phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="supplier_email" class="form-label">Email</label>
+                            <input class="form-control" id="supplier_email" type="email" name="email"
+                                placeholder="Email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="supplier_address" class="form-label">Address</label>
+                            <input class="form-control" id="supplier_address" type="text" name="address"
+                                placeholder="Address">
+                        </div>
+                        <div id="supplier-form-errors" class="text-danger"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSupplierBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 <style>
@@ -142,6 +189,8 @@
         // });
         $(document).ready(function() {
             let rowCount = 0;
+            const supplierModalEl = document.getElementById('createSupplierModal');
+            const supplierModal = new bootstrap.Modal(supplierModalEl);
             $('#add-row').on('click', function() {
                 rowCount++;
 
@@ -197,13 +246,53 @@
             $('#submit-form').on('click', function() {
 
             });
-            $('#publisher_id').on('change', function() {
-                console.log($(this).val());
-
+            $('#supplier_id').on('change', function() {
                 if ($(this).val() === 'create_new') {
-                    window.location.href = "{{ route('supplier.create') }}";
+                    $(this).val('');
+                    $('#supplier-form-errors').empty();
+                    supplierModal.show();
                 }
+            });
 
+            $('#saveSupplierBtn').on('click', function() {
+                const form = $('#createSupplierForm');
+                const saveBtn = $(this);
+
+                saveBtn.prop('disabled', true);
+
+                $.ajax({
+                    url: "{{ route('supplier.store') }}",
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        const supplier = response.data;
+                        $('#supplier_id option[value="create_new"]').before(
+                            `<option value="${supplier.id}">${supplier.name}</option>`
+                        );
+                        $('#supplier_id').val(supplier.id);
+                        form[0].reset();
+                        $('#supplier-form-errors').empty();
+                        supplierModal.hide();
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            const errors = xhr.responseJSON.errors;
+                            let html = '<ul class="mb-0">';
+                            Object.values(errors).forEach(function(messages) {
+                                messages.forEach(function(message) {
+                                    html += `<li>${message}</li>`;
+                                });
+                            });
+                            html += '</ul>';
+                            $('#supplier-form-errors').html(html);
+                        } else {
+                            $('#supplier-form-errors').text('Something went wrong. Please try again.');
+                        }
+                    },
+                    complete: function() {
+                        saveBtn.prop('disabled', false);
+                    }
+                });
             });
         });
     </script>
