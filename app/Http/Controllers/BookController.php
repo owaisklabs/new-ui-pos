@@ -32,20 +32,15 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
+        
         $request->validate([
             'sku' => 'required',
             'bar_code' => 'required',
             'title' => 'required',
             'subtitle' => 'nullable',
-            'publisher_id' => 'required|exists:publishers,id',
-            'author_id' => 'required|array',
-            'author_id.*' => 'exists:authors,id',
-            'published_at' => 'nullable',
             'description' => 'nullable',
             'cost_price' => 'required|numeric',
             'sell_price' => 'required|numeric',
-            'pages' => 'nullable',
-            'language' => 'nullable',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
         $data = $request->except('cover_image', 'author_id');
@@ -58,7 +53,6 @@ class BookController extends Controller
 
 
         $book = Book::create($data);
-
         // Many-to-many pivot insert
         $book->authors()->attach($request->author_id);
         return  redirect()->route('book.index');
@@ -126,5 +120,24 @@ class BookController extends Controller
             "data"  => $books,
         ], JsonResponse::HTTP_OK);
 
+    }
+    public function getBookByBarcode(Request $request)
+    {
+        $barcode = $request->input('barcode');
+        $book = Book::where('bar_code',$barcode)->first();
+        return response()->json([
+            "status"  => JsonResponse::HTTP_OK,
+            "message" => "Book Fetch successfully",
+            "data"  => $book,
+        ], JsonResponse::HTTP_OK);  
+
+    }
+
+    public function getBookSalesById($id)
+    {
+        $book = Book::with(['saleItems.sale.customer', 'publisher', 'authors'])
+            ->findOrFail($id);
+
+        return view('book.sales_list', compact('book'));
     }
 }

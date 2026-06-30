@@ -12,9 +12,29 @@ class InventoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $inventories = Inventory::with('book');
+        if ($request->has('query')) {
+            $filters = $request->query('query');
+            if (!empty($filters['name'])) {
+                $inventories->whereHas('book', function ($query) use ($filters) {
+                    $query->where('title', 'LIKE', '%' . $filters['name'] . '%');
+                });
+            }
+            if (!empty($filters['from_date'])) {
+                $inventories->whereHas('book', function ($query) use ($filters) {
+                    $query->whereDate('created_at', '>=', $filters['from_date']);
+                });
+            }
+            if (!empty($filters['to_date'])) {
+                $inventories->whereHas('book', function ($query) use ($filters) {
+                    $query->whereDate('created_at', '<=', $filters['to_date']);
+                });
+            }
+        }
+        $inventories = $inventories->paginate(50);
+        return view('inventory.index',compact('inventories'));
     }
 
     /**

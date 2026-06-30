@@ -40,7 +40,10 @@ class Book extends Model
     {
         return $this->hasMany(PurchaseItem::class);
     }
-
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
 
     public function saleItems()
     {

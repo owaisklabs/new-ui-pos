@@ -52,6 +52,10 @@
                         <label for="sell_price">Sell Price <span class="text-danger">*</span></label>
                         <input class="form-control" id="sell_price" type="number" name="sell_price" placeholder="Sell Price" required="" data-bs-original-title="" title="">
                     </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="cover_image">Cover Image <span class="text-danger">*</span></label>
+                        <input class="form-control" id="cover_image" type="file" name="cover_image" placeholder="Cover Image" required="" data-bs-original-title="" title="">
+                    </div>
 
                     <img id="preview-image" src="#" alt="Preview" style="max-width: 250px; display: none; border: 1px solid #ccc; padding: 5px;">
 

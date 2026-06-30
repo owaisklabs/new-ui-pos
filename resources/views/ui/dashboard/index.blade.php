@@ -270,12 +270,12 @@
                 <div class="action-title">Purchase</div>
             </a>
 
-            <a href="/payments" class="action-card orange">
+            <a href="{{route('supplier.index')}}" class="action-card orange">
                 <i data-feather="shopping-cart"></i>
-                <div class="action-title">Payment</div>
+                <div class="action-title">Supplier</div>
             </a>
 
-            <a href="/inventory" class="action-card teal">
+            <a href="{{ route('inventory.index') }}" class="action-card teal">
                 <i data-feather="shopping-cart"></i>
                 <div class="action-title">Inventory</div>
             </a>

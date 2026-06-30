@@ -15,30 +15,32 @@
 
 
 @section('content')
-    <form class="needs-validation" action="{{route('purchase.store')}}" METHOD="post" enctype="multipart/form-data">
+    <form class="needs-validation" action="{{ route('purchase.store') }}" METHOD="post" enctype="multipart/form-data">
         @csrf
         <div class="card">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label for="sku">Invoice # <span class="text-danger">*</span></label>
-                        <input class="form-control abc" id="sku" type="text" name="invoice_no" placeholder="SKU" required=""
-                               data-bs-original-title="" title="">
+                        <input class="form-control abc" id="sku" type="text" name="invoice_no" placeholder="SKU"
+                            required="" data-bs-original-title="" title="">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="purchase_date">Purchase date <span class="text-danger">*</span></label>
                         <input class="form-control" id="purchase_date" type="date" value="{{ now()->format('Y-m-d') }}"
-                               name="purchase_date" placeholder="Barcode" required="" data-bs-original-title="" title="">
+                            name="purchase_date" placeholder="Barcode" required="" data-bs-original-title=""
+                            title="">
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label for="publisher_id">Supplier <span class="text-danger">*</span></label>
                         <select id=" publisher_id" required class="form-control " name="supplier_id">
                             <option value="">Select Supplier</option>
-                            @foreach($suppliers as $item)
-
-                                <option value="{{$item->id}}">{{$item->name}}</option>
+                            @foreach ($suppliers as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @endforeach
+                            <option value="create_new">+ Create New Supplier</option>
+
 
                         </select>
                     </div>
@@ -64,8 +66,8 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="expense">Other Expenses <span class="text-danger">*</span></label>
-                        <input class="form-control" id="expense" type="text"
-                               name="expense" placeholder="Other Expenses" required="" data-bs-original-title="" title="">
+                        <input class="form-control" id="expense" type="text" name="expense"
+                            placeholder="Other Expenses" required="" data-bs-original-title="" title="">
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="remarks">Remarks <span class="text-danger">*</span></label>
@@ -83,8 +85,8 @@
                         <label for="book_id_0">Book # <span class="text-danger">*</span></label>
                         <select id="book_id_0" required class="form-control" name="items[0][book_id]">
                             <option value="">Select Book</option>
-                            @foreach($books as $item)
-                                <option value="{{$item->id}}">{{$item->title}}</option>
+                            @foreach ($books as $item)
+                                <option value="{{ $item->id }}">{{ $item->title }}</option>
                             @endforeach
 
 
@@ -92,11 +94,13 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="quantity_0">Qty <span class="text-danger">*</span></label>
-                        <input class="form-control" id="quantity_0" type="number" name="items[0][quantity]" placeholder="Qty" required>
+                        <input class="form-control" id="quantity_0" type="number" name="items[0][quantity]"
+                            placeholder="Qty" required>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="unit_cost_0">Unit Cost <span class="text-danger">*</span></label>
-                        <input class="form-control" id="unit_cost_0" type="number" name="items[0][unit_cost]" placeholder="Unit Cost" required>
+                        <input class="form-control" id="unit_cost_0" type="number" name="items[0][unit_cost]"
+                            placeholder="Unit Cost" required>
                     </div>
                     <div class="col-md-2 mb-3 action-buttons">
                         <!-- Remove button hidden for the first row -->
@@ -116,7 +120,8 @@
             </div>
         </div>
 
-        <button class="btn btn-primary  float-end mt-2" type="submit" data-bs-original-title="" title="">Create</button>
+        <button class="btn btn-primary  float-end mt-2" type="submit" data-bs-original-title=""
+            title="">Create</button>
     </form>
 @endsection
 
@@ -126,8 +131,8 @@
 
 
 @section('script')
-    <script src="{{asset('assets/js/select2/select2.full.min.js')}}"></script>
-    <script src="{{asset('assets/js/select2/select2-custom.js')}}"></script>
+    <script src="{{ asset('assets/js/select2/select2.full.min.js') }}"></script>
+    <script src="{{ asset('assets/js/select2/select2-custom.js') }}"></script>
     <script>
         // $(document).ready(function() {
         //     $('.select2').select2({
@@ -147,9 +152,9 @@
                                 <label for="book_id_${rowCount}">Book # <span class="text-danger">*</span></label>
                                 <select id="book_id_${rowCount}" required class="form-control book-select" name="items[${rowCount}][book_id]">
                                     <option value="">Select Book</option>
-                                   @foreach($books as $item)
+                                   @foreach ($books as $item)
 
-                                    <option value="{{$item->id}}">{{$item->title}}</option>
+                                    <option value="{{ $item->id }}">{{ $item->title }}</option>
                                       @endforeach
 
                                 </select>
@@ -192,11 +197,14 @@
             $('#submit-form').on('click', function() {
 
             });
+            $('#publisher_id').on('change', function() {
+                console.log($(this).val());
+
+                if ($(this).val() === 'create_new') {
+                    window.location.href = "{{ route('supplier.create') }}";
+                }
+
+            });
         });
-
-
     </script>
 @endsection
-
-
-

@@ -92,6 +92,11 @@
                                     <i data-feather="edit"></i>
                                 </a>
 
+                                {{-- Sales --}}
+                                <a href="{{ route('get-book-sales-by-id', $item->id) }}" class="btn btn-sm btn-info p-1 d-flex align-items-center justify-content-center">
+                                    <i data-feather="shopping-cart"></i>
+                                </a>
+
                             </td>
                         </tr>
                         @endforeach

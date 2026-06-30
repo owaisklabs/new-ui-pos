@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -27,11 +28,16 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('purchase',\App\Http\Controllers\PurchaseController::class);
         Route::resource('customer',\App\Http\Controllers\CustomerController::class);
         Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+        // envRoute::resource('return',[\App\Http\Controllers\ReturnController::class]);
+        Route::get('inventory',[InventoryController::class,'index'])->name('inventory.index');
+
+        Route::get('get-book-sales-by-id/{id}',[\App\Http\Controllers\BookController::class,'getBookSalesById'])->name('get-book-sales-by-id');
         Route::get('payment-receive',[\App\Http\Controllers\SaleController::class,'paymentReceive'])->name('payment-receive');
         Route::get('get-all-customer',[\App\Http\Controllers\CustomerController::class,'getAllCustomers'])->name('get-all-customer');
         Route::get('get-book-by-title',[\App\Http\Controllers\BookController::class,'getBookByTitle'])->name('get-book-by-title');
         Route::get('cart',[\App\Http\Controllers\CartController::class,'getCart'])->name('get-cart');
         Route::post('cart',[\App\Http\Controllers\CartController::class,'storeCart'])->name('post-cart');
+        Route::get('get-book-by-barcode',[\App\Http\Controllers\BookController::class,'getBookByBarcode'])->name('post-cart-by-barcode');
         Route::delete('cart/empty',[\App\Http\Controllers\CartController::class,'empty'])->name('empty-cart');
         Route::delete('cart/delete',[\App\Http\Controllers\CartController::class,'delete'])->name('delete-cart');
         Route::post('cart/change-qty',[\App\Http\Controllers\CartController::class,'changeQty'])->name('change-qty');

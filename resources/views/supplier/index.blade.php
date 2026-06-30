@@ -24,16 +24,22 @@
                 <input class="form-control" name="query" type="text" placeholder="First name" required="">
                 <div class="valid-feedback">Looks good!</div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom02">From Date</label>
                 <input class="form-control" name="from_date" id="validationCustom02" type="date"  >
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom02">To Date</label>
                 <input class="form-control" name="to_date" id="validationCustom02" type="date"  >
             </div>
-            <div class="col-md-3 mb-3" style="margin-top: 25px;">
-                <button class="btn btn-pill btn-primary btn-air-primary btn-lg" type="submit">Search</button>
+            <div class="col-md-1 mb-3" style="margin-top: 25px;">
+                <button class="btn  btn-primary btn-air-primary btn-lg" type="submit">Search</button>
+            </div>
+            <div class="col-md-1 mb-3" style="margin-top: 25px;">
+                <button class="btn  btn-warning btn-air-warning btn-lg" onclick="clearSearch()">Clear</button>
+            </div>
+            <div class="col-md-2 mb-3" style="margin-top: 25px;">
+                <a href="{{route('supplier.create')}}" class="btn  btn-success btn-air-success btn-lg">Create Supplier</a>
             </div>
         </form>
     {{-- </div> --}}

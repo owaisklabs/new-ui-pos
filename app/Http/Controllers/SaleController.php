@@ -66,79 +66,79 @@ class SaleController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'amount' => 'required|numeric|min:0',
-            'cartData' => 'required|array|min:1',
-            'cartData.*.book_id' => 'required|integer|exists:books,id',
-            'cartData.*.qty' => 'required|numeric|min:1',
-            'cartData.*.price' => 'required|numeric|min:0',
-            'cartData.*.discount' => 'nullable|numeric|min:0|max:100',
-            'cartData.*.line_total' => 'required|numeric|min:0',
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-
-            $lastSale = Sale::latest('id')->first();
-            $nextId = $lastSale ? $lastSale->id + 1 : 1;
-
-            $invoiceNumber = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-
-            $paidAmount = ($request->sales_status === Sale::STATUS_PAID) ? $request->amount : 0;
-
-            $sale = Sale::create([
-                'invoice_no'   => $invoiceNumber,
-                'sale_date'    => now(),
-                'total_amount' => $request->amount,
-                'paid_amount'  => $paidAmount,
-                'customer_id'  => $request->customer_id,
-                'created_by'   => auth()->id(),
-                'status'       => $request->sales_status,
+        public function store(Request $request)
+        {
+            $request->validate([
+                'amount' => 'required|numeric|min:0',
+                'cartData' => 'required|array|min:1',
+                'cartData.*.book_id' => 'required|integer|exists:books,id',
+                'cartData.*.qty' => 'required|numeric|min:1',
+                'cartData.*.price' => 'required|numeric|min:0',
+                'cartData.*.discount' => 'nullable|numeric|min:0|max:100',
+                'cartData.*.line_total' => 'required|numeric|min:0',
             ]);
 
-            foreach ($request->cartData as $item) {
+            DB::beginTransaction();
 
-                $quantity = $item['qty'];
-                $unitPrice = $item['price'];
-                $cost_price = $item['cost_price'];
-                $discount = $item['discount'] ?? 0;
+            try {
 
-                $afterDiscount = $unitPrice * (1 - ($discount / 100));
+                $lastSale = Sale::latest('id')->first();
+                $nextId = $lastSale ? $lastSale->id + 1 : 1;
 
-                SaleItem::create([
-                    'sale_id' => $sale->id,
-                    'book_id' => $item['book_id'],
-                    'quantity' => $quantity,
-                    'unit_price' => $unitPrice,
-                    'cost_price' => $cost_price,
-                    'sale_price' => $afterDiscount,
-                    'line_total' => $quantity * $unitPrice,
-                    'discount' => $discount,
-                    'total' => $item['line_total'],
+                $invoiceNumber = str_pad($nextId, 6, '0', STR_PAD_LEFT);
+
+                $paidAmount = ($request->sales_status === Sale::STATUS_PAID) ? $request->amount : 0;
+
+                $sale = Sale::create([
+                    'invoice_no'   => $invoiceNumber,
+                    'sale_date'    => now(),
+                    'total_amount' => $request->amount,
+                    'paid_amount'  => $paidAmount,
+                    'customer_id'  => $request->customer_id,
+                    'created_by'   => auth()->id(),
+                    'status'       => $request->sales_status,
                 ]);
-                $inventory = Inventory::where('book_id', $item['book_id'])->first();
-                if ($inventory) {
-                    $inventory->decrement('quantity', $quantity);
+
+                foreach ($request->cartData as $item) {
+
+                    $quantity = $item['qty'];
+                    $unitPrice = $item['price'];
+                    $cost_price = $item['cost_price'];
+                    $discount = $item['discount'] ?? 0;
+
+                    $afterDiscount = $unitPrice * (1 - ($discount / 100));
+
+                    SaleItem::create([
+                        'sale_id' => $sale->id,
+                        'book_id' => $item['book_id'],
+                        'quantity' => $quantity,
+                        'unit_price' => $unitPrice,
+                        'cost_price' => $cost_price,
+                        'sale_price' => $afterDiscount,
+                        'line_total' => $quantity * $unitPrice,
+                        'discount' => $discount,
+                        'total' => $item['line_total'],
+                    ]);
+                    $inventory = Inventory::where('book_id', $item['book_id'])->first();
+                    if ($inventory) {
+                        $inventory->decrement('quantity', $quantity);
+                    }
                 }
+
+                DB::commit();
+                $data = $sale->load('items');
+                $request->user()->cart()->detach();
+                return response()->json(['message' => 'success', 'data' => $data], 201);
+
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'error',
+                    'error' => $e->getMessage()
+                ], 500);
             }
-
-            DB::commit();
-            $data = $sale->load('items');
-            $request->user()->cart()->detach();
-            return response()->json(['message' => 'success', 'data' => $data], 201);
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-            return response()->json([
-                'message' => 'error',
-                'error' => $e->getMessage()
-            ], 500);
         }
-    }
 
     public function printA5Receipt($id)
     {

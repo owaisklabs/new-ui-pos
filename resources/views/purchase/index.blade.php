@@ -21,7 +21,7 @@
         {{-- <div class="row"> --}}
         <form action="{{route('purchase.index')}}" class="row" method="GET">
             <div class="col-md-3 mb-3">
-                <label for="validationCustom01">Supplier</label>
+                <label for="validationCustom01">Invoice No</label>
                 <select name="query[book_id]" class="form-control">
                     <option value="">Select Book</option>
                     @foreach($books as $item)
@@ -31,15 +31,28 @@
                 <div class="valid-feedback">Looks good!</div>
             </div>
             <div class="col-md-3 mb-3">
+                <label for="validationCustom01">Supplier</label>
+                <select name="query[book_id]" class="form-control">
+                    <option value="">Select Book</option>
+                    @foreach($books as $item)
+                        <option value="{{$item->id}}">{{$item->title}}</option>
+                    @endforeach
+                </select>
+                <div class="valid-feedback">Looks good!</div>
+            </div>
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom02">From Date</label>
                 <input class="form-control" name="from_date" id="validationCustom02" type="date"  >
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom02">To Date</label>
                 <input class="form-control" name="to_date" id="validationCustom02" type="date"  >
             </div>
-            <div class="col-md-3 mb-3" style="margin-top: 25px;">
+            <div class="col-md-2 mb-3" style="margin-top: 25px;">
                 <button class="btn btn-pill btn-primary btn-air-primary btn-lg" type="submit">Search</button>
+            </div>
+            <div class="col-md-12 my-5" style="margin-top: 25px; display: flex; justify-content: flex-end;">
+                <a href="{{route('purchase.create')}}" class="btn  btn-success btn-air-success btn-lg" type="submit">Create Purchase</a>
             </div>
         </form>
         <div class="row">

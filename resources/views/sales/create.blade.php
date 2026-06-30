@@ -376,14 +376,15 @@
                     }
                 });
 
-                $.post(
-                    BASE_URL + "/dashboard/cart",
-                    { bookId: barcode },
-                    function () {
-
+                $.get(
+                    BASE_URL + "/dashboard/get-book-by-barcode",
+                    { barcode: barcode },
+                    function (res) {
+                        const book = res.data;
+                        if(book){
+                            addProductToCart(book.id);
+                        }
                         $("#barcode").val("");
-
-                        loadCart();
                     }
                 ).fail(err => {
 
