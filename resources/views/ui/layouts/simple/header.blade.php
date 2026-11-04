@@ -13,7 +13,11 @@
       </div>
     </form>
     <div class="header-logo-wrapper col-auto p-0">
-      <div class="logo-wrapper"><a href="{{route('/')}}"><img class="img-fluid" src="{{asset('assets/images/logo/logo.png')}}" alt=""></a></div>
+      <div class="logo-wrapper">
+          <a href="{{ route('/') }}">
+              <img class="img-fluid" src="{{ $appSetting && $appSetting->logo ? $appSetting->logoUrl() : asset('assets/images/logo/logo.png') }}" alt="Logo">
+          </a>
+      </div>
       <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i></div>
     </div>
     <div class="left-header col horizontal-wrapper ps-0">
@@ -22,42 +26,94 @@
     <div class="nav-right col-8 pull-right right-header p-0">
       <ul class="nav-menus">
 
-
-
         <li>
           <div class="mode"><i class="fa fa-moon-o"></i></div>
         </li>
 
-
         <li class="maximize"><a class="text-dark" href="#!" onclick="javascript:toggleFullScreen()"><i data-feather="maximize"></i></a></li>
+
+        <li class="logout-btn">
+          <form action="{{route('logout')}}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn btn-logout" title="Logout">
+              <i data-feather="log-out" class="me-2"></i>
+              <span>Logout</span>
+            </button>
+          </form>
+        </li>
+
         <li class="profile-nav onhover-dropdown p-0 me-0">
           <div class="media profile-media">
             <img class="b-r-10" src="{{asset('assets/images/dashboard/profile.jpg')}}" alt="">
             <div class="media-body">
-              <span>Emay Walter</span>
-              <p class="mb-0 font-roboto">Admin <i class="middle fa fa-angle-down"></i></p>
+              <span>{{ Auth::user()->name ?? 'User' }}</span>
+              <p class="mb-0 font-roboto">{{ Auth::user()->isAdmin() ? 'Admin' : 'Staff' }} <i class="middle fa fa-angle-down"></i></p>
             </div>
           </div>
           <ul class="profile-dropdown onhover-show-div">
               <li>
-                  <a href="#"><i data-feather="log-in"></i>
+                  <a href="{{ route('settings.index') }}"><i data-feather="settings"></i>
                     <span>Setting</span>
                 </a>
             </li>
-            <form action="{{route('logout')}}" method="POST">
-                @csrf
-                <li>
-                    <a href="#">
-                        <button type="submit" class="btn btn-warning">
-                        <span>Log out</span>
-                    </button>
-                    </a>
-                </li>
-            </form>
+            <li>
+                  <a href="#"><i data-feather="user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
           </ul>
         </li>
       </ul>
     </div>
+
+    <style>
+      .btn-logout {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+      }
+
+      .btn-logout:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #e63946 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        color: white;
+      }
+
+      .btn-logout:active {
+        transform: translateY(0);
+      }
+
+      .logout-btn {
+        margin: 0 10px;
+      }
+
+      .btn-logout [data-feather] {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2.5;
+      }
+
+      @media (max-width: 768px) {
+        .btn-logout span {
+          display: none;
+        }
+
+        .btn-logout {
+          padding: 8px 12px;
+        }
+      }
+    </style>
     <script class="result-template" type="text/x-handlebars-template">
       <div class="ProfileCard u-cf">
       <div class="ProfileCard-avatar"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-airplay m-0"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path><polygon points="12 15 17 21 7 21 12 15"></polygon></svg></div>

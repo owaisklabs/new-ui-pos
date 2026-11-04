@@ -42,8 +42,8 @@ class BookController extends Controller
             'cost_price' => 'required|numeric',
             'sell_price' => 'required|numeric',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
-        $data = $request->except('cover_image', 'author_id');
+        ] + $this->unitRules(), $this->unitMessages());
+        $data = $this->perBaseUnitPrices($request, $request->except('cover_image', 'author_id'));
         if ($request->hasFile('cover_image')) {
             $imageName = time().'.'.$request->cover_image->extension();
             $request->cover_image->storeAs('book_covers', $imageName, 'public');
@@ -81,9 +81,9 @@ class BookController extends Controller
             'bar_code' => 'required',
             'title' => 'required',
             'subtitle' => 'nullable',
-            'publisher_id' => 'required|exists:publishers,id',
-            'author_id' => 'required|array',
-            'author_id.*' => 'exists:authors,id',
+            'publisher_id' => 'nullable|exists:publishers,id',
+            'author_id' => 'nullable|array',
+            'author_id.*' => 'nullable|exists:authors,id',
             'published_at' => 'nullable',
             'description' => 'nullable',
             'cost_price' => 'required|numeric',
@@ -91,8 +91,8 @@ class BookController extends Controller
             'pages' => 'nullable',
             'language' => 'nullable',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
-        $data = $request->except('cover_image', 'author_id');
+        ] + $this->unitRules(), $this->unitMessages());
+        $data = $this->perBaseUnitPrices($request, $request->except('cover_image', 'author_id'));
         if ($request->hasFile('cover_image')) {
             $imageName = time().'.'.$request->cover_image->extension();
             $request->cover_image->storeAs('book_covers', $imageName, 'public');
@@ -103,6 +103,36 @@ class BookController extends Controller
         return redirect()->route('book.index');
     }
 
+
+    private function unitRules(): array
+    {
+        return [
+            'conversion_factor' => 'nullable|numeric|min:2|required_with:purchase_unit,base_unit',
+            'purchase_unit' => 'nullable|string|max:32|required_with:conversion_factor,base_unit',
+            'base_unit' => 'nullable|string|max:32|required_with:conversion_factor,purchase_unit',
+        ];
+    }
+
+    private function perBaseUnitPrices(Request $request, array $data): array
+    {
+        if ($request->filled('conversion_factor')) {
+            $factor = (float) $request->input('conversion_factor');
+            $data['cost_price'] = round($request->input('cost_price') / $factor, 2);
+            $data['sell_price'] = round($request->input('sell_price') / $factor, 2);
+        }
+
+        return $data;
+    }
+
+    private function unitMessages(): array
+    {
+        return [
+            'conversion_factor.required_with' => 'Enter how many Feet are in one Roll (e.g. 40), or clear the other unit fields.',
+            'conversion_factor.min' => 'Feet per Roll must be at least 2.',
+            'purchase_unit.required_with' => 'Enter the Purchase Unit (e.g. Roll), or clear the other unit fields.',
+            'base_unit.required_with' => 'Enter the Base Unit (e.g. Feet), or clear the other unit fields.',
+        ];
+    }
 
     public function destroy(Book $book)
     {

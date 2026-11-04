@@ -9,7 +9,7 @@
     <meta name="author" content="pixelstrap">
     <link rel="icon" href="{{asset('assets/images/favicon.png')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{asset('assets/images/favicon.png')}}" type="image/x-icon">
-    <title> Muktab MusslehUddin | Online Book ERP</title>
+    <title>{{ $appSetting->business_title ?? 'POS System' }}</title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900&amp;display=swap" rel="stylesheet">
@@ -36,12 +36,12 @@
     <!-- page-wrapper Start-->
     <div class="page-wrapper compact-wrapper" id="pageWrapper">
       <!-- Page Header Start-->
-{{--      @include('ui.layouts.simple.header')--}}
+      @include('ui.layouts.simple.header')
       <!-- Page Header Ends  -->
       <!-- Page Body Start-->
       <div class="page-body-wrapper">
         <!-- Page Sidebar Start-->
-{{--        @include('ui.layouts.simple.sidebar')--}}
+        @include('ui.layouts.simple.pos-sidebar')
         <!-- Page Sidebar Ends-->
         <div class="page-body">
           <div class="container-fluid">

@@ -41,7 +41,7 @@
                 <strong>Status:</strong>
                 <p class="mb-0">
                 <span class="badge bg-{{ 
-        $purchase->status == 'pending' ? 'secondary' : 
+        $purchase->status == 'pending' ? 'secondary' :
         ($purchase->status == 'received' ? 'success' : 
         ($purchase->status == 'cancelled' ? 'warning' : 'dark'))
     }}">
@@ -110,9 +110,9 @@
 
                 <td>{{ $item->book->title }}</td>
 
-                <td>{{ $item->quantity }}</td>
+                <td>{{ $item->quantityLabel() }}</td>
 
-                <td>{{ number_format($item->unit_cost, 2) }}</td>
+                <td>{{ number_format($item->isDualUnit() ? $item->purchase_unit_cost : $item->unit_cost, 2) }}{{ $item->isDualUnit() ? ' / ' . ($item->purchase_unit ?: 'Roll') : '' }}</td>
 
 
                 <td>{{ number_format($item->line_total, 2) }}</td>
@@ -214,7 +214,10 @@
                         Delete
                     </button>
                 </form>
-
+                <a href="{{ route('purchases.return.create', $purchase->id) }}"
+                   class="btn btn-primary ">
+                    Return
+                </a>
                 <a href="{{ url('/dashboard/sales') }}"
                    class="btn btn-secondary ">
                     Back

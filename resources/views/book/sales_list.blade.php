@@ -92,7 +92,7 @@
                                 <td>{{ $sale->invoice_no ?? '-' }}</td>
                                 <td>{{ $sale->sale_date ?? '-' }}</td>
                                 <td>{{ $sale->customer->name ?? 'N/A' }}</td>
-                                <td>{{ $item->quantity }}</td>
+                                <td>{{ $item->quantityLabel() }}</td>
                                 <td>{{ number_format($item->unit_price, 2) }}</td>
                                 <td>{{ number_format($item->sale_price, 2) }}</td>
                                 <td>{{ $item->discount ?? 0 }}%</td>

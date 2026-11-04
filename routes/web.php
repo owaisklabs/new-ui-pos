@@ -21,13 +21,35 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('dashboard')->group(function(){
         Route::get('/',[DashboardController::class,'index'])->name('dashboard');
         Route::resource('sales',\App\Http\Controllers\SaleController::class);
+        Route::get('sales/{sale}/return', [\App\Http\Controllers\SaleReturnController::class, 'create'])->name('sales.return.create');
+        Route::resource('return-sales',\App\Http\Controllers\SaleReturnController::class)->except(['edit', 'update', 'destroy', 'create']);
         Route::resource('author',\App\Http\Controllers\AuthorController::class);
         Route::resource('publisher',\App\Http\Controllers\PublisherController::class);
         Route::resource('supplier',\App\Http\Controllers\SupplierController::class);
         Route::resource('book',\App\Http\Controllers\BookController::class);
         Route::resource('purchase',\App\Http\Controllers\PurchaseController::class);
+        Route::get('purchase/{purchase}/return', [\App\Http\Controllers\PurchaseReturnController::class, 'create'])->name('purchases.return.create');
+        Route::resource('return-purchases', \App\Http\Controllers\PurchaseReturnController::class)->except(['edit', 'update', 'destroy', 'create']);
         Route::resource('customer',\App\Http\Controllers\CustomerController::class);
         Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+        Route::resource('settings', \App\Http\Controllers\SettingController::class);
+
+        // Branch Management
+        Route::resource('branches', \App\Http\Controllers\BranchController::class);
+        Route::post('branches/{branch}/assign-user', [\App\Http\Controllers\BranchController::class, 'assignUser'])->name('branches.assign-user');
+        Route::post('branches/{branch}/remove-user', [\App\Http\Controllers\BranchController::class, 'removeUser'])->name('branches.remove-user');
+
+        // Reports
+        Route::prefix('reports')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+            Route::get('sales', [\App\Http\Controllers\ReportController::class, 'salesReport'])->name('reports.sales');
+            Route::get('inventory', [\App\Http\Controllers\ReportController::class, 'inventoryReport'])->name('reports.inventory');
+            Route::get('stock', [\App\Http\Controllers\ReportController::class, 'stockReport'])->name('reports.stock');
+            Route::get('purchase', [\App\Http\Controllers\ReportController::class, 'purchaseReport'])->name('reports.purchase');
+            Route::get('expense', [\App\Http\Controllers\ReportController::class, 'expenseReport'])->name('reports.expense');
+            Route::get('branch-comparison', [\App\Http\Controllers\ReportController::class, 'branchComparison'])->name('reports.branch-comparison');
+        });
+
         // envRoute::resource('return',[\App\Http\Controllers\ReturnController::class]);
         Route::get('inventory',[InventoryController::class,'index'])->name('inventory.index');
 
@@ -42,7 +64,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('cart/delete',[\App\Http\Controllers\CartController::class,'delete'])->name('delete-cart');
         Route::post('cart/change-qty',[\App\Http\Controllers\CartController::class,'changeQty'])->name('change-qty');
         Route::get('print-receipt/{id}',[\App\Http\Controllers\SaleController::class,'printA5Receipt'])->name('print-receipt');
-        Route::get('reports',[\App\Http\Controllers\ReportingController::class,'reports']);
     });
 });
 Auth::routes();

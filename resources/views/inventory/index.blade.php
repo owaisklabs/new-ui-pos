@@ -62,7 +62,7 @@
                         <tr>
                             <td scope="row">{{$item->id}}</td>
                             <td>{{$item->book->title}}</td>
-                            <td>{{$item->quantity}}</td>
+                            <td>{{ $item->book->stockLabel($item->quantity) }}</td>
                             <td>{{$item->location}}</td>
                         </tr>
                         @endforeach

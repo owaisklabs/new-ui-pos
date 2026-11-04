@@ -8,6 +8,14 @@
 @section('style')
 @endsection
 
+@section('breadcrumb-title')
+    <h3>Create Sale</h3>
+@endsection
+
+@section('breadcrumb-items')
+    <li class="breadcrumb-item"><a href="{{ route('sales.index') }}">Sale</a></li>
+    <li class="breadcrumb-item active">Sales Create</li>
+@endsection
 @section('content')
 
     <div class="row" id="pos-app">
@@ -53,7 +61,7 @@
                     <tr>
                         <th>Items</th>
                         <th>Items Price</th>
-                        <th width="120">Quantity</th>
+                        <th width="170">Quantity</th>
                         <th width="120">Discount</th>
                         <th>Line Total</th>
                         <th>Action</th>
@@ -249,6 +257,45 @@
                 cart.forEach(item => {
 
                     const quantity = item.pivot.quantity;
+                    const factor = parseFloat(item.conversion_factor) || 0;
+                    const isDual = factor > 1;
+                    const packUnit = item.purchase_unit || 'Roll';
+                    const baseUnit = item.base_unit || 'Feet';
+                    const rollQty = parseInt(item.pivot.roll_qty, 10) || 0;
+                    let feetQty = parseInt(item.pivot.feet_qty, 10) || 0;
+                    if (rollQty === 0 && feetQty === 0) {
+                        feetQty = quantity;
+                    }
+
+                    const qtyCell = isDual ? `
+                        <div class="d-flex gap-1">
+                            <div>
+                                <small>${packUnit}s</small>
+                                <input type="text" oninput="validateNumber(this)"
+                                    class="form-control form-control-sm roll-input"
+                                    name="roll_qty[]" value="${rollQty}"
+                                    data-id="${item.id}" data-factor="${factor}" data-base="${baseUnit}">
+                            </div>
+                            <div>
+                                <small>${baseUnit}</small>
+                                <input type="text" oninput="validateNumber(this)"
+                                    class="form-control form-control-sm feet-input"
+                                    name="feet_qty[]" value="${feetQty}"
+                                    data-id="${item.id}">
+                            </div>
+                        </div>
+                        <small class="text-info equiv">= ${quantity} ${baseUnit}</small>
+                        <input type="hidden" class="qty-input" name="qty[]" value="${quantity}" data-id="${item.id}">
+                    ` : `
+                        <input
+                            type="text"
+                            oninput="validateNumber(this)"
+                            class="form-control form-control-sm qty-input"
+                            name="qty[]"
+                            value="${quantity}"
+                            data-id="${item.id}"
+                        >
+                    `;
 
                     const discount = item.pivot.discount || 0;
 
@@ -266,20 +313,12 @@
                         <td>${item.title}</td>
 
                         <td class="text-right">
-                            ${item.sell_price}
+                            ${item.sell_price}${isDual ? ' / ' + baseUnit : ''}
+                            ${isDual ? '<br><small class="text-muted">' + (item.sell_price * factor).toFixed(2) + ' / ' + packUnit + '</small>' : ''}
                         </td>
 
                         <td>
-
-                            <input
-                                type="text"
-                                oninput="validateNumber(this)"
-                                class="form-control form-control-sm qty-input"
-                                name="qty[]"
-                                value="${quantity}"
-                                data-id="${item.id}"
-                            >
-
+                            ${qtyCell}
                         </td>
 
                         <input
@@ -453,6 +492,16 @@
             // -----------------------------
             function updateRowTotal(row) {
 
+                const rollInput = row.find(".roll-input");
+
+                if (rollInput.length) {
+                    const factor = parseFloat(rollInput.data("factor")) || 0;
+                    const rolls = parseInt(rollInput.val(), 10) || 0;
+                    const feet = parseInt(row.find(".feet-input").val(), 10) || 0;
+                    row.find(".qty-input").val(rolls * factor + feet);
+                    row.find(".equiv").text("= " + (rolls * factor + feet) + " " + rollInput.data("base"));
+                }
+
                 const qty =
                     parseFloat(row.find(".qty-input").val()) || 0;
 
@@ -525,6 +574,8 @@
                     {
                         product_id: id,
                         quantity: qty,
+                        roll_qty: parseInt(row.find(".roll-input").val(), 10) || 0,
+                        feet_qty: parseInt(row.find(".feet-input").val(), 10) || 0,
                         discount: discount
                     }
                 ).fail(err => {
@@ -543,7 +594,7 @@
             // -----------------------------
             $("#cart-table").on(
                 "input",
-                ".qty-input, .discount-input",
+                ".qty-input, .discount-input, .roll-input, .feet-input",
                 function () {
 
                     const row = $(this).closest("tr");
@@ -633,6 +684,12 @@
                 $('#cart-table tbody tr').each(function () {
 
                     cartData.push({
+
+                        roll_qty:
+                            $(this).find('.roll-input').val(),
+
+                        feet_qty:
+                            $(this).find('.feet-input').val(),
 
                         qty:
                             $(this)

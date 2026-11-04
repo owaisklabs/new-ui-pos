@@ -7,6 +7,7 @@ use App\Models\Inventory;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
+use App\Services\UnitConversion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +20,7 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Purchase::with('supplier','items');
+        $query = Purchase::with(['supplier', 'items.book']);
         if ($request->has('query')) {
             $filters = $request->query('query');
 
@@ -29,7 +30,6 @@ class PurchaseController extends Controller
 
                 if (!empty($filters['book_id'])) {
                     $query->whereHas('items', function ($query) use ($filters) {
-                        dd($filters['book_id']);
                         $query->where('book_id', $filters['book_id']);
                     });
                 }
@@ -67,6 +67,13 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.book_id' => 'required|exists:books,id',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.unit_cost' => 'required|numeric|min:0',
+        ]);
+
         DB::transaction(function () use ($request) {
 
             $totalAmount = 0;
@@ -83,23 +90,45 @@ class PurchaseController extends Controller
 
             foreach ($request->items as $item) {
 
+                $book = Book::findOrFail($item['book_id']);
+                $baseQty = $item['quantity'];
+                $unitCost = $item['unit_cost'];
                 $lineTotal = $item['quantity'] * $item['unit_cost'];
+                $dual = [];
+
+                if ($book->isDualUnit()) {
+                    $rolls = (int) $item['quantity'];
+                    if ($rolls < 1) {
+                        throw new \InvalidArgumentException("Enter a roll quantity of at least 1 for \"{$book->title}\".");
+                    }
+                    $factor = (float) $book->conversion_factor;
+                    $baseQty = UnitConversion::toBase($rolls, 0, $factor);
+                    $lineTotal = round($rolls * $item['unit_cost'], 2);
+                    $unitCost = round($item['unit_cost'] / $factor, 2);
+                    $dual = [
+                        'purchase_qty' => $rolls,
+                        'purchase_unit' => $book->purchase_unit ?: 'Roll',
+                        'conversion_factor' => $factor,
+                        'purchase_unit_cost' => $item['unit_cost'],
+                    ];
+                }
+
                 $totalAmount += $lineTotal;
 
                 PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'book_id' => $item['book_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_cost' => $item['unit_cost'],
+                    'quantity' => $baseQty,
+                    'unit_cost' => $unitCost,
                     'line_total' => $lineTotal,
-                ]);
+                ] + $dual);
 
                 $inventory = Inventory::firstOrCreate(
                     ['book_id' => $item['book_id']],
                     ['quantity' => 0, 'reorder_level' => 10]
                 );
 
-                $inventory->increment('quantity', $item['quantity']);
+                $inventory->increment('quantity', $baseQty);
             }
 
             $purchase->update(['total_amount' => $totalAmount]);
@@ -117,6 +146,8 @@ class PurchaseController extends Controller
      */
     public function show(Purchase $purchase)
     {
+        $purchase->load(['items.book', 'supplier', 'user']);
+
         return view('purchase.detail', compact('purchase'));
     }
 

@@ -11,7 +11,30 @@
             font-family: Arial, sans-serif;
             font-size: 10px;
             margin: 0;
-            padding: 0;
+            padding: 8px 0;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .no-print {
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #000;
+            text-decoration: none;
+            color: #000;
+            font-size: 10px;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
         }
 
 
@@ -58,11 +81,22 @@
 
 </head>
 <body>
+<div class="no-print">
+    <a href="{{ route('sales.create') }}" class="back-btn">Back To Sale</a>
+</div>
+
 <div class="invoice">
-    <h2>Maktaba Muslehuddin </h2>
+    <h2>{{ $appSetting->business_title ?? 'POS System' }}</h2>
     <p class="small">Date: {{ $sale->created_at->format('d/m/Y | H:i') }}<br>
         Invoice #: {{ $sale->invoice_no }}<br>
-        Customer: {{ $sale->customer_name ?? "-" }}</p>
+        Customer: {{ $sale->customer->name ?? "-" }}<br>
+        @if($appSetting?->mobile_number)
+            Mobile: {{ $appSetting->mobile_number }}<br>
+        @endif
+        @if($appSetting?->email)
+            Email: {{ $appSetting->email }}
+        @endif
+    </p>
     <table>
         <thead>
         <tr>
@@ -82,7 +116,7 @@
             @foreach($sale->items as $item)
                 <tr>
                 <td>{{$item->book->title ?? "-"}}</td>
-                <td >{{$item->quantity}}</td>
+                <td >{{ $item->quantityLabel() }}</td>
                 <td >{{number_format($item->unit_price,2)}}</td>
                 <td >{{$item->discount}}%</td>
                 <td >{{number_format($item->total,2)}}</td>
@@ -109,15 +143,30 @@
             <td class="right">{{number_format($discountTotal,2)}}</td>
         </tr>
         <tr>
+            <td>Tax</td>
+            <td class="right">{{ $appSetting && $appSetting->tax_included ? 'Included' : 'Not Included' }}</td>
+        </tr>
+        <tr>
             <td><strong>Total</strong></td>
             <td class="right"><strong>{{number_format($sale->total_amount,2)}}</strong></td>
         </tr>
     </table>
 
-    <p style="text-align:center; margin-top:10px;">The Project of <strong>Raah Welfare Foundation Trust</strong></p>
-    <p style="text-align:center;"><strong>Address</strong>: Shama Plaza Near Musalla Muslehuddin, G Allana Road, Kharadar Karachi</p>
+    <p style="text-align:center; margin-top:10px;">
+        {{ $appSetting->business_title ?? 'Thank you for your purchase' }}
+    </p>
+    <p style="text-align:center;">
+        <strong>Address</strong>: {{ $appSetting->address ?? '-' }}
+    </p>
 </div>
 
+<script>
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            window.print();
+        }, 150);
+    });
+</script>
 
 </body>
 </html>

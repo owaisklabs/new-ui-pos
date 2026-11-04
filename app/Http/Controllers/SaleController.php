@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\StockException;
+use App\Models\Book;
 use App\Models\Inventory;
+use App\Services\UnitConversion;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\SalesPaymentDetail;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PDF;
 
 class SaleController extends Controller
 {
@@ -72,7 +75,9 @@ class SaleController extends Controller
                 'amount' => 'required|numeric|min:0',
                 'cartData' => 'required|array|min:1',
                 'cartData.*.book_id' => 'required|integer|exists:books,id',
-                'cartData.*.qty' => 'required|numeric|min:1',
+                'cartData.*.qty' => 'nullable|numeric|min:0',
+                'cartData.*.roll_qty' => 'nullable|integer|min:0',
+                'cartData.*.feet_qty' => 'nullable|integer|min:0',
                 'cartData.*.price' => 'required|numeric|min:0',
                 'cartData.*.discount' => 'nullable|numeric|min:0|max:100',
                 'cartData.*.line_total' => 'required|numeric|min:0',
@@ -101,12 +106,44 @@ class SaleController extends Controller
 
                 foreach ($request->cartData as $item) {
 
-                    $quantity = $item['qty'];
+                    $book = Book::findOrFail($item['book_id']);
                     $unitPrice = $item['price'];
                     $cost_price = $item['cost_price'];
                     $discount = $item['discount'] ?? 0;
-
                     $afterDiscount = $unitPrice * (1 - ($discount / 100));
+                    $dual = [];
+
+                    if ($book->isDualUnit()) {
+                        $rolls = (int) ($item['roll_qty'] ?? 0);
+                        $feet = (int) ($item['feet_qty'] ?? 0);
+                        $quantity = UnitConversion::toBase($rolls, $feet, $book->conversion_factor);
+
+                        if ($quantity <= 0) {
+                            throw new StockException("Enter Roll or Feet quantity for \"{$book->title}\".");
+                        }
+
+                        $available = (float) Inventory::where('book_id', $book->id)->lockForUpdate()->value('quantity');
+                        if ($quantity > $available) {
+                            throw new StockException(
+                                "Insufficient stock for \"{$book->title}\". Available: {$available} " . ($book->base_unit ?: 'Feet') . ", requested: {$quantity}."
+                            );
+                        }
+
+                        $dual = [
+                            'roll_qty' => $rolls,
+                            'feet_qty' => $feet,
+                            'conversion_factor' => $book->conversion_factor,
+                            'purchase_unit' => $book->purchase_unit ?: 'Roll',
+                            'base_unit' => $book->base_unit ?: 'Feet',
+                        ];
+                        $lineTotalAfterDiscount = round($quantity * $afterDiscount, 2);
+                    } else {
+                        $quantity = $item['qty'] ?? 0;
+                        if ($quantity < 1) {
+                            throw new StockException("Quantity must be at least 1 for \"{$book->title}\".");
+                        }
+                        $lineTotalAfterDiscount = $item['line_total'];
+                    }
 
                     SaleItem::create([
                         'sale_id' => $sale->id,
@@ -117,8 +154,8 @@ class SaleController extends Controller
                         'sale_price' => $afterDiscount,
                         'line_total' => $quantity * $unitPrice,
                         'discount' => $discount,
-                        'total' => $item['line_total'],
-                    ]);
+                        'total' => $lineTotalAfterDiscount,
+                    ] + $dual);
                     $inventory = Inventory::where('book_id', $item['book_id'])->first();
                     if ($inventory) {
                         $inventory->decrement('quantity', $quantity);
@@ -129,6 +166,11 @@ class SaleController extends Controller
                 $data = $sale->load('items');
                 $request->user()->cart()->detach();
                 return response()->json(['message' => 'success', 'data' => $data], 201);
+
+            } catch (StockException $e) {
+
+                DB::rollBack();
+                return response()->json(['message' => $e->getMessage()], 422);
 
             } catch (\Exception $e) {
 
@@ -142,11 +184,13 @@ class SaleController extends Controller
 
     public function printA5Receipt($id)
     {
-        $sale = Sale::with('items.book','customer')->findOrFail($id);
-        return view('reports.sale-receipt-a5', compact('sale'));
-        $pdf = PDF::loadView('reports.sale-receipt-thermal', compact('sale'))
-            ->setPaper('a5', 'landscape');
-        return $pdf->stream('receipt-' . $sale->invoice_no . '.pdf'); // open in browser
+        $sale = Sale::with('items.book', 'customer')->findOrFail($id);
+        $setting = Setting::query()->first();
+        $invoiceType = $setting?->invoice_type ?? 'thermal';
+
+        $viewName = $invoiceType === 'a5' ? 'reports.sale-receipt-a5' : 'reports.sale-receipt-thermal';
+
+        return view($viewName, compact('sale'));
     }
 
 

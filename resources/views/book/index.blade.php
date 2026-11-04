@@ -72,9 +72,9 @@
                             <td>{{$item->sku}}</td>
                             <td>{{$item->title}}</td>
 
-                            <td>{{$item->inventory->quantity ?? "-"}}</td>
-                            <td>{{$item->cost_price}}</td>
-                            <td>{{$item->sell_price}}</td>
+                            <td>{{ $item->inventory ? $item->stockLabel($item->inventory->quantity) : "-" }}</td>
+                            <td>{{ $item->priceLabel($item->cost_price) }}</td>
+                            <td>{{ $item->priceLabel($item->sell_price) }}</td>
                             <td class="d-flex align-items-center gap-2">
 
                                 {{-- Delete --}}

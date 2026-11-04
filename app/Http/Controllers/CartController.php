@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Services\UnitConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -62,7 +63,19 @@ class CartController extends Controller
 //            ], 400);
 //        }
 
-        $cartItem->pivot->quantity = $request->quantity;
+        if ($product->isDualUnit()) {
+            $request->validate([
+                'roll_qty' => 'nullable|integer|min:0',
+                'feet_qty' => 'nullable|integer|min:0',
+            ]);
+            $rolls = (int) $request->input('roll_qty', 0);
+            $feet = (int) $request->input('feet_qty', 0);
+            $cartItem->pivot->roll_qty = $rolls;
+            $cartItem->pivot->feet_qty = $feet;
+            $cartItem->pivot->quantity = UnitConversion::toBase($rolls, $feet, $product->conversion_factor);
+        } else {
+            $cartItem->pivot->quantity = $request->quantity;
+        }
         $cartItem->pivot->discount = $request->discount;
         $cartItem->pivot->save();
 
@@ -77,6 +90,9 @@ class CartController extends Controller
 //            ], 400);
 //        }
 
+        if ($book->isDualUnit()) {
+            $cartItem->pivot->increment('feet_qty');
+        }
         $cartItem->pivot->increment('quantity');
 
         return response()->json(['success' => true]);
@@ -90,7 +106,9 @@ class CartController extends Controller
 //            ], 400);
 //        }
 
-        $request->user()->cart()->attach($book->id, ['quantity' => 1]);
+        $request->user()->cart()->attach($book->id, $book->isDualUnit()
+            ? ['quantity' => 1, 'roll_qty' => 0, 'feet_qty' => 1]
+            : ['quantity' => 1]);
 
         return response()->json(['success' => true]);
     }

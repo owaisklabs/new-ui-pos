@@ -16,6 +16,27 @@
             margin: 0;
         }
 
+        .no-print {
+            padding: 10px;
+            text-align: right;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 4px;
+            border: 1px solid #000;
+            text-decoration: none;
+            color: #000;
+            font-size: 13px;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+
         .receipt-wrapper {
             width: 100%;
             height: 148mm; /* Half A4 height */
@@ -54,10 +75,15 @@
     </style>
 </head>
 <body>
+<div class="no-print">
+    <a href="{{ route('sales.create') }}" class="back-btn">Back To Sale</a>
+</div>
 
 <div class="receipt-wrapper">
 
-    <img src="{{ asset('assets/images/logo/logo_receipt.png') }}" class="logo">
+    @if($appSetting && $appSetting->logo)
+        <img src="{{ $appSetting->logoUrl() }}" class="logo" alt="Logo">
+    @endif
 
     <table class="no-border">
         <tr>
@@ -83,7 +109,7 @@
         @foreach($sale->items as $item)
             <tr>
                 <td>{{ $item->book->title ?? "-" }}</td>
-                <td>{{ $item->quantity }}</td>
+                <td>{{ $item->quantityLabel() }}</td>
                 <td>{{ number_format($item->unit_price,2) }}</td>
                 <td>{{ $item->discount }}%</td>
                 <td>{{ number_format($item->total,2) }}</td>
@@ -93,26 +119,39 @@
                 $discount = $item->line_total - $item->total;
                 $discountTotal += $discount;
                 $lineTotal += $item->line_total;
-                $totalQuantity += $item->quantity;
+                $totalQuantity += $item->isDualUnit() ? 0 : $item->quantity;
             @endphp
         @endforeach
 
-        <tr><td colspan="1"><strong>Total Quantity</strong></td><td> <strong> {{ $totalQuantity }}<strong></td></tr>
+        @if($totalQuantity > 0)
+            <tr><td colspan="1"><strong>Total Quantity</strong></td><td> <strong> {{ $totalQuantity }}<strong></td></tr>
+        @endif
         <tr><td colspan="4"><strong>Total</strong></td><td>{{ number_format($lineTotal,2) }}</td></tr>
         <tr><td colspan="4"><strong>Discount</strong></td><td>{{ number_format($discountTotal,2) }}</td></tr>
+        <tr><td colspan="4"><strong>Tax</strong></td><td>{{ $appSetting && $appSetting->tax_included ? 'Included' : 'Not Included' }}</td></tr>
         <tr><td colspan="4"><strong>Grand Total</strong></td><td>{{ number_format($sale->total_amount,2) }}</td></tr>
         </tbody>
     </table>
 
     <div class="footer">
-        The Project of <strong>Raah Welfare Foundation Trust</strong><br>
-        <strong>Address:</strong> Shama Plaza, Kharadar, Karachi
+        <strong>{{ $appSetting->business_title ?? 'POS System' }}</strong><br>
+        @if($appSetting?->mobile_number)
+            <strong>Mobile:</strong> {{ $appSetting->mobile_number }}<br>
+        @endif
+        @if($appSetting?->email)
+            <strong>Email:</strong> {{ $appSetting->email }}<br>
+        @endif
+        <strong>Address:</strong> {{ $appSetting->address ?? '-' }}
     </div>
 
 </div>
 
 <script>
-    window.print();
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            window.print();
+        }, 150);
+    });
 </script>
 
 </body>

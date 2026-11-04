@@ -111,7 +111,7 @@
 
                 <td>{{ $item->book->title }}</td>
 
-                <td>{{ $item->quantity }}</td>
+                <td>{{ $item->quantityLabel() }}</td>
 
                 <td>{{ number_format($item->unit_price, 2) }}</td>
 
@@ -202,7 +202,16 @@
 
         <div class="row mt-3">
             <div class="col-md-12 text-end">
+                @php
+                $hasReturnableItems = $sale->items->contains(fn ($item) => $item->returnableQuantity() > 0);
+            @endphp
 
+            @if($hasReturnableItems)
+                <a href="{{ route('sales.return.create', $sale) }}"
+                   class="btn btn-warning">
+                    Return Sale
+                </a>
+            @endif
                 <a href="{{ url('/dashboard/sales/'.$sale->id.'/edit') }}"
                    class="btn btn-warning ">
                    Edit

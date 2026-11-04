@@ -8,6 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     use HasFactory;
-    protected $fillable = ['name','phone','address'];
 
+    protected $fillable = ['branch_id', 'name', 'phone', 'address'];
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function scopeByBranch($query, $branchId)
+    {
+        return $query->where(function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId)
+              ->orWhereNull('branch_id');
+        });
+    }
 }

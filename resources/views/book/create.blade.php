@@ -18,43 +18,76 @@
     <div class="card">
 
         <div class="card-body">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form class="needs-validation"  action="{{route('book.store')}}" METHOD="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label for="sku">SKU <span class="text-danger">*</span></label>
-                        <input class="form-control abc" id="sku" type="text" name="sku" placeholder="SKU" required="" data-bs-original-title="" title="">
+                        <input class="form-control abc" id="sku" type="text" name="sku" value="{{ old('sku') }}" placeholder="SKU" required="" data-bs-original-title="" title="">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="bar_code">Barcode <span class="text-danger">*</span></label>
-                        <input class="form-control" id="bar_code" type="text" name="bar_code" placeholder="Barcode" required="" data-bs-original-title="" title="">
+                        <input class="form-control" id="bar_code" type="text" name="bar_code" value="{{ old('bar_code') }}" placeholder="Barcode" required="" data-bs-original-title="" title="">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="title">Title <span class="text-danger">*</span></label>
-                        <input class="form-control" id="title" type="text" name="title" placeholder="Title" required="" data-bs-original-title="" title="">
+                        <input class="form-control" id="title" type="text" name="title" value="{{ old('title') }}" placeholder="Title" required="" data-bs-original-title="" title="">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="subtitle">Sub Title</label>
-                        <input class="form-control" id="subtitle" type="text" name="subtitle" placeholder="Sub Title"  data-bs-original-title="" title="">
+                        <input class="form-control" id="subtitle" type="text" name="subtitle" value="{{ old('subtitle') }}" placeholder="Sub Title"  data-bs-original-title="" title="">
                     </div>
 
 
 
                     <div class="col-md-3 mb-3">
                         <label for="description">Description</label>
-                        <input class="form-control" id="description" type="text" name="description" placeholder="Description"  data-bs-original-title="" title="">
+                        <input class="form-control" id="description" type="text" name="description" value="{{ old('description') }}" placeholder="Description"  data-bs-original-title="" title="">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="cost_price">Cost Price <span class="text-danger">*</span></label>
-                        <input class="form-control" id="cost_price" type="number" name="cost_price" placeholder="Cost Price" required="" data-bs-original-title="" title="">
+                        <label for="cost_price"><span id="cost_price_text">Cost Price</span> <span class="text-danger">*</span></label>
+                        <input class="form-control" id="cost_price" type="number" step="0.01" min="0" name="cost_price" value="{{ old('cost_price') }}" placeholder="Cost Price" required="" data-bs-original-title="" title="">
+                        <small id="cost_price_hint" class="text-info"></small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="sell_price">Sell Price <span class="text-danger">*</span></label>
-                        <input class="form-control" id="sell_price" type="number" name="sell_price" placeholder="Sell Price" required="" data-bs-original-title="" title="">
+                        <label for="sell_price"><span id="sell_price_text">Sell Price</span> <span class="text-danger">*</span></label>
+                        <input class="form-control" id="sell_price" type="number" step="0.01" min="0" name="sell_price" value="{{ old('sell_price') }}" placeholder="Sell Price" required="" data-bs-original-title="" title="">
+                        <small id="sell_price_hint" class="text-info"></small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="cover_image">Cover Image <span class="text-danger">*</span></label>
                         <input class="form-control" id="cover_image" type="file" name="cover_image" placeholder="Cover Image" required="" data-bs-original-title="" title="">
+                    </div>
+
+                    <div class="col-12">
+                        <hr>
+                        <h6 class="mb-1">Dual Unit (e.g. buy in Rolls, sell in Rolls + Feet) &mdash; optional</h6>
+                        <p class="text-muted mb-2">
+                            Fill <strong>all three</strong> fields below, or leave all three empty for a normal product.
+                            Once a conversion factor is entered, type Cost Price and Sell Price above <strong>per Roll</strong>.
+                            The system divides by the conversion factor and saves the price <strong>per Foot</strong> (shown under each box).
+                        </p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="conversion_factor">Conversion factor (e.g. 40 = 40 Feet in 1 Roll)</label>
+                        <input class="form-control" id="conversion_factor" type="number" min="2" step="1" name="conversion_factor" value="{{ old('conversion_factor') }}" placeholder="e.g. 40">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="purchase_unit">Purchase Unit</label>
+                        <input class="form-control" id="purchase_unit" type="text" name="purchase_unit" value="{{ old('purchase_unit') }}" placeholder="e.g. Roll">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="base_unit">Base (Sale / Stock) Unit</label>
+                        <input class="form-control" id="base_unit" type="text" name="base_unit" value="{{ old('base_unit') }}" placeholder="e.g. Feet">
                     </div>
 
                     <img id="preview-image" src="#" alt="Preview" style="max-width: 250px; display: none; border: 1px solid #ccc; padding: 5px;">
@@ -92,6 +125,32 @@
                 preview.style.display = 'block';
             }
         });
+
+        (function () {
+            const factorEl = document.getElementById('conversion_factor');
+            const packEl = document.getElementById('purchase_unit');
+            const baseEl = document.getElementById('base_unit');
+
+            function refreshPrices() {
+                const factor = parseFloat(factorEl.value) || 0;
+                const dual = factor > 1;
+                const pack = packEl.value.trim() || 'Roll';
+                const base = baseEl.value.trim() || 'Feet';
+
+                [['cost_price', 'Cost Price'], ['sell_price', 'Sell Price']].forEach(function (field) {
+                    const value = parseFloat(document.getElementById(field[0]).value);
+                    document.getElementById(field[0] + '_text').textContent =
+                        dual ? field[1] + ' per ' + pack : field[1];
+                    document.getElementById(field[0] + '_hint').textContent =
+                        dual && !isNaN(value) ? '= ' + (value / factor).toFixed(2) + ' per ' + base + ' (saved)' : '';
+                });
+            }
+
+            ['conversion_factor', 'purchase_unit', 'base_unit', 'cost_price', 'sell_price'].forEach(function (id) {
+                document.getElementById(id).addEventListener('input', refreshPrices);
+            });
+            refreshPrices();
+        })();
     </script>
 @endsection
 

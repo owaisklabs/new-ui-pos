@@ -8,180 +8,6 @@
 @endsection
 
 @section('style')
-    <style>
-        body{
-            background:#111827;
-            font-family: 'Segoe UI', sans-serif;
-            overflow-x:hidden;
-        }
-
-        .dashboard-wrapper{
-            padding:20px;
-        }
-
-        .header-card{
-            background:#0f172a;
-            border-radius:16px;
-            padding:20px;
-            margin-bottom:20px;
-            border:1px solid rgba(255,255,255,.08);
-        }
-
-        .brand-box{
-            display:flex;
-            align-items:center;
-            gap:20px;
-        }
-
-        .brand-icon{
-            width:90px;
-            height:90px;
-            background:#22c55e;
-            border-radius:20px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:#fff;
-            font-size:40px;
-        }
-
-        .brand-title{
-            color:#fff;
-            font-size:32px;
-            font-weight:700;
-        }
-
-        .brand-subtitle{
-            color:#cbd5e1;
-            font-size:15px;
-        }
-
-        .top-menu{
-            display:grid;
-            grid-template-columns: repeat(5,1fr);
-            gap:15px;
-        }
-
-        .menu-card{
-            height:120px;
-            border-radius:16px;
-            color:#fff;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            text-decoration:none;
-            transition:.3s;
-            font-weight:600;
-            box-shadow:0 10px 20px rgba(0,0,0,.2);
-        }
-
-        .menu-card:hover{
-            transform:translateY(-5px);
-            color:#fff;
-        }
-
-        .menu-card i{
-            font-size:32px;
-            margin-bottom:12px;
-        }
-
-        .section-title{
-            color:#fff;
-            margin:25px 0 15px;
-            font-size:20px;
-            font-weight:600;
-        }
-
-        .main-grid{
-            display:grid;
-            grid-template-columns: repeat(4,1fr);
-            gap:18px;
-        }
-
-        .action-card{
-            min-height:140px;
-            border-radius:18px;
-            padding:20px;
-            position:relative;
-            overflow:hidden;
-            color:#fff;
-            text-decoration:none;
-            transition:.3s;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
-            text-align:center;
-            box-shadow:0 10px 25px rgba(0,0,0,.3);
-        }
-
-        .action-card:hover{
-            transform:scale(1.03);
-            color:#fff;
-        }
-
-        .action-card i{
-            font-size:42px;
-            margin-bottom:15px;
-        }
-
-        .action-title{
-            font-size:20px;
-            font-weight:700;
-        }
-
-        .green{ background:#22c55e; }
-        .blue{ background:#06b6d4; }
-        .red{ background:#ef4444; }
-        .orange{ background:#f97316; }
-        .purple{ background:#8b5cf6; }
-        .teal{ background:#14b8a6; }
-        .pink{ background:#ec4899; }
-
-        .footer-bar{
-            margin-top:25px;
-            background:#0f172a;
-            border-radius:14px;
-            padding:12px 20px;
-            color:#cbd5e1;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
-
-        @media(max-width:1200px){
-            .main-grid{
-                grid-template-columns: repeat(3,1fr);
-            }
-
-            .top-menu{
-                grid-template-columns: repeat(3,1fr);
-            }
-        }
-
-        @media(max-width:768px){
-            .main-grid{
-                grid-template-columns: repeat(2,1fr);
-            }
-
-            .top-menu{
-                grid-template-columns: repeat(2,1fr);
-            }
-
-            .brand-box{
-                flex-direction:column;
-                text-align:center;
-            }
-        }
-
-        @media(max-width:576px){
-            .main-grid,
-            .top-menu{
-                grid-template-columns:1fr;
-            }
-        }
-    </style>
 @endsection
 
 @section('breadcrumb-title')
@@ -194,133 +20,604 @@
 @endsection
 
 @section('content')
-    <div class="container-fluid dashboard-wrapper">
+    <div class="container-fluid">
 
-        <!-- Header -->
-        <div class="header-card">
-
-            <div class="row align-items-center">
-
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <div class="brand-box">
-
-                        <div class="brand-icon">
-                            <i class="fa-solid fa-cart-shopping"></i>
-                        </div>
-
-                        <div>
-                            <div class="brand-title">POS System</div>
-                            <div class="brand-subtitle">
-                                Smart Business Management Dashboard
+        <div class="row second-chart-list third-news-update">
+            
+            
+            
+            <div class="col-sm-6 col-xl-3 col-lg-6">
+                <div class="card o-hidden">
+                    <div class="bg-primary b-r-4 card-body">
+                        <div class="media static-top-widget">
+                            <div class="align-self-center text-center"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-database">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg></div>
+                            <div class="media-body">
+                                <span class="m-0">Daily Sales</span>
+                                <h4 class="mb-0 counter">6659</h4>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-database icon-bg">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
                             </div>
                         </div>
-
                     </div>
                 </div>
-
-                <div class="col-lg-8">
-                    <div class="top-menu">
-
-                        <a href="{{route('book.index')}}" class="menu-card green">
-                            <i class="fa-solid fa-box"></i>
-                            Items
-                        </a>
-
-                        <a href="#" class="menu-card blue">
-                            <i class="fa-solid fa-users"></i>
-                            Accounts
-                        </a>
-
-                        <a href="#" class="menu-card orange">
-                            <i class="fa-solid fa-wallet"></i>
-                            Cashbox
-                        </a>
-
-                        <a href="#" class="menu-card purple">
-                            <i class="fa-solid fa-file-invoice"></i>
-                            Invoices
-                        </a>
-
-                        <a href="#" class="menu-card teal">
-                            <i data-feather="shopping-cart"></i>
-                            Reports
-                        </a>
-
-                    </div>
-                </div>
-
             </div>
+            <div class="col-sm-6 col-xl-3 col-lg-6">
+                <div class="card o-hidden">
+                    <div class="bg-primary b-r-4 card-body">
+                        <div class="media static-top-widget">
+                            <div class="align-self-center text-center"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-database">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg></div>
+                            <div class="media-body">
+                                <span class="m-0">Weekly Sales</span>
+                                <h4 class="mb-0 counter">6659</h4>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-database icon-bg">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3 col-lg-6">
+                <div class="card o-hidden">
+                    <div class="bg-primary b-r-4 card-body">
+                        <div class="media static-top-widget">
+                            <div class="align-self-center text-center"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-database">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg></div>
+                            <div class="media-body">
+                                <span class="m-0">Monthly Sales</span>
+                                <h4 class="mb-0 counter">6659</h4>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-database icon-bg">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3 col-lg-6">
+                <div class="card o-hidden">
+                    <div class="bg-primary b-r-4 card-body">
+                        <div class="media static-top-widget">
+                            <div class="align-self-center text-center"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-database">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg></div>
+                            <div class="media-body">
+                                <span class="m-0">Yearly Sales</span>
+                                <h4 class="mb-0 counter">6659</h4>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-database icon-bg">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- <div class="col-xl-4 col-lg-12 xl-50 morning-sec box-col-12">
+			<div class="card o-hidden profile-greeting">
+				<div class="card-body">
+					<div class="media">
+						<div class="badge-groups w-100">
+							<div class="badge f-12"><i class="me-1" data-feather="clock"></i><span id="txt"></span></div>
+							<div class="badge f-12"><i class="fa fa-spin fa-cog f-14"></i></div>
+						</div>
+					</div>
+					<div class="greeting-user text-center">
+						<div class="profile-vector"><img class="img-fluid" src="{{asset('assets/images/dashboard/welcome.png')}}" alt=""></div>
+						<h4 class="f-w-600"><span id="greeting">Good Morning</span> <span class="right-circle"><i class="fa fa-check-circle f-14 middle"></i></span></h4>
+						<p><span> Today's earrning is $405 & your sales increase rate is 3.7 over the last 24 hours</span></p>
+						<div class="whatsnew-btn"><a class="btn btn-primary">Whats New !</a></div>
+						<div class="left-icon"><i class="fa fa-bell"> </i></div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-8 xl-100 dashboard-sec box-col-12">
+			<div class="card earning-card">
+				<div class="card-body p-0">
+					<div class="row m-0">
+						<div class="col-xl-3 earning-content p-0">
+							<div class="row m-0 chart-left">
+								<div class="col-xl-12 p-0 left_side_earning">
+									<h5>Dashboard</h5>
+									<p class="font-roboto">Overview of last month</p>
+								</div>
+								<div class="col-xl-12 p-0 left_side_earning">
+									<h5>$4055.56 </h5>
+									<p class="font-roboto">This Month Earning</p>
+								</div>
+								<div class="col-xl-12 p-0 left_side_earning">
+									<h5>$1004.11</h5>
+									<p class="font-roboto">This Month Profit</p>
+								</div>
+								<div class="col-xl-12 p-0 left_side_earning">
+									<h5>90%</h5>
+									<p class="font-roboto">This Month Sale</p>
+								</div>
+								<div class="col-xl-12 p-0 left-btn"><a class="btn btn-gradient">Summary</a></div>
+							</div>
+						</div>
+						<div class="col-xl-9 p-0">
+							<div class="chart-right">
+								<div class="row m-0 p-tb">
+									<div class="col-xl-8 col-md-8 col-sm-8 col-12 p-0">
+										<div class="inner-top-left">
+											<ul class="d-flex list-unstyled">
+												<li>Daily</li>
+												<li class="active">Weekly</li>
+												<li>Monthly</li>
+												<li>Yearly</li>
+											</ul>
+										</div>
+									</div>
+									<div class="col-xl-4 col-md-4 col-sm-4 col-12 p-0 justify-content-end">
+										<div class="inner-top-right">
+											<ul class="d-flex list-unstyled justify-content-end">
+												<li>Online</li>
+												<li>Store</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xl-12">
+										<div class="card-body p-0">
+											<div class="current-sale-container">
+												<div id="chart-currently"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row border-top m-0">
+								<div class="col-xl-4 ps-0 col-md-6 col-sm-6">
+									<div class="media p-0">
+										<div class="media-left"><i class="icofont icofont-crown"></i></div>
+										<div class="media-body">
+											<h6>Referral Earning</h6>
+											<p>$5,000.20</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-xl-4 col-md-6 col-sm-6">
+									<div class="media p-0">
+										<div class="media-left bg-secondary"><i class="icofont icofont-heart-alt"></i></div>
+										<div class="media-body">
+											<h6>Cash Balance</h6>
+											<p>$2,657.21</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-xl-4 col-md-12 pe-0">
+									<div class="media p-0">
+										<div class="media-left"><i class="icofont icofont-cur-dollar"></i></div>
+										<div class="media-body">
+											<h6>Sales forcasting</h6>
+											<p>$9,478.50     </p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            <div class="col-xl-12 xl-100 chart_data_left box-col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="row m-0 chart-main">
+                            <div class="col-xl-3 col-md-6 col-sm-6 p-0 box-col-6">
+                                <div class="media align-items-center">
+                                    <div class="hospital-small-chart">
+                                        <div class="small-bar">
+                                            <div class="small-chart flot-chart-container"></div>
+                                        </div>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="right-chart-content">
+                                            <h4>1001</h4>
+                                            <span>purchase </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 col-sm-6 p-0 box-col-6">
+                                <div class="media align-items-center">
+                                    <div class="hospital-small-chart">
+                                        <div class="small-bar">
+                                            <div class="small-chart1 flot-chart-container"></div>
+                                        </div>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="right-chart-content">
+                                            <h4>1005</h4>
+                                            <span>Sales</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 col-sm-6 p-0 box-col-6">
+                                <div class="media align-items-center">
+                                    <div class="hospital-small-chart">
+                                        <div class="small-bar">
+                                            <div class="small-chart2 flot-chart-container"></div>
+                                        </div>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="right-chart-content">
+                                            <h4>100</h4>
+                                            <span>Sales return</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 col-sm-6 p-0 box-col-6">
+                                <div class="media border-none align-items-center">
+                                    <div class="hospital-small-chart">
+                                        <div class="small-bar">
+                                            <div class="small-chart3 flot-chart-container"></div>
+                                        </div>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="right-chart-content">
+                                            <h4>101</h4>
+                                            <span>Purchase ret</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 xl-25 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>$95,900<span class="new-box">Hot</span></h4>
+                                <span>Purchase Order Value</span>
+                            </div>
 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 xl-25 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>$95,900<span class="new-box">Hot</span></h4>
+                                <span>Purchase Order Value</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 xl-25 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>$95,900<span class="new-box">Hot</span></h4>
+                                <span>Purchase Order Value</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 xl-25 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>$95,900<span class="new-box">Hot</span></h4>
+                                <span>Purchase Order Value</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- <div class="col-xl-3 xl-50 chart_data_right second d-none">
+			<div class="card">
+				<div class="card-body">
+					<div class="media align-items-center">
+						<div class="media-body right-chart-content">
+							<h4>$95,000<span class="new-box">New</span></h4>
+							<span>Product Order Value</span>
+						</div>
+						<div class="knob-block text-center">
+							<input class="knob1" data-width="50" data-height="70" data-thickness=".3" data-fgcolor="#7366ff" data-linecap="round" data-angleoffset="0" value="60">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-4 xl-50 news box-col-6">
+			<div class="card">
+				<div class="card-header">
+					<div class="header-top">
+						<h5 class="m-0">News & Update</h5>
+						<div class="card-header-right-icon">
+							<select class="button btn btn-primary">
+								<option>Today</option>
+								<option>Tomorrow</option>
+								<option>Yesterday</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="card-body p-0">
+					<div class="news-update">
+						<h6>36% off For pixel lights Couslations Types.</h6>
+						<span>Lorem Ipsum is simply dummy...</span>
+					</div>
+					<div class="news-update">
+						<h6>We are produce new product this</h6>
+						<span> Lorem Ipsum is simply text of the printing... </span>
+					</div>
+					<div class="news-update">
+						<h6>50% off For COVID Couslations Types.</h6>
+						<span>Lorem Ipsum is simply dummy...</span>
+					</div>
+				</div>
+				<div class="card-footer">
+					<div class="bottom-btn"><a href="#">More...</a></div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-4 xl-50 appointment-sec box-col-6">
+			<div class="row">
+				<div class="col-xl-12 appointment">
+					<div class="card">
+						<div class="card-header card-no-border">
+							<div class="header-top">
+								<h5 class="m-0">appointment</h5>
+								<div class="card-header-right-icon">
+									<select class="button btn btn-primary">
+										<option>Today</option>
+										<option>Tomorrow</option>
+										<option>Yesterday</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="card-body pt-0">
+							<div class="appointment-table table-responsive">
+								<table class="table table-bordernone">
+									<tbody>
+										<tr>
+											<td>
+												<img class="img-fluid img-40 rounded-circle mb-3" src="{{asset('assets/images/appointment/app-ent.jpg')}}" alt="Image description">
+												<div class="status-circle bg-primary"></div>
+											</td>
+											<td class="img-content-box"><span class="d-block">Venter Loren</span><span class="font-roboto">Now</span></td>
+											<td>
+												<p class="m-0 font-primary">28 Sept</p>
+											</td>
+											<td class="text-end">
+												<div class="button btn btn-primary">Done<i class="fa fa-check-circle ms-2"></i></div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<img class="img-fluid img-40 rounded-circle" src="{{asset('assets/images/appointment/app-ent.jpg')}}" alt="Image description">
+												<div class="status-circle bg-primary"></div>
+											</td>
+											<td class="img-content-box"><span class="d-block">John Loren</span><span class="font-roboto">11:00</span></td>
+											<td>
+												<p class="m-0 font-primary">22 Sept</p>
+											</td>
+											<td class="text-end">
+												<div class="button btn btn-danger">Pending<i class="fa fa-check-circle ms-2"></i></div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-12 alert-sec">
+					<div class="card bg-img">
+						<div class="card-header">
+							<div class="header-top">
+								<h5 class="m-0">Alert  </h5>
+								<div class="dot-right-icon"><i class="fa fa-ellipsis-h"></i></div>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="body-bottom">
+								<h6>  10% off For drama lights Couslations...</h6>
+								<span class="font-roboto">Lorem Ipsum is simply dummy...It is a long established fact that a reader will be distracted by  </span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-4 xl-50 notification box-col-6">
+			<div class="card">
+				<div class="card-header card-no-border">
+					<div class="header-top">
+						<h5 class="m-0">notification</h5>
+						<div class="card-header-right-icon">
+							<select class="button btn btn-primary">
+								<option>Today</option>
+								<option>Tomorrow</option>
+								<option>Yesterday</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="card-body pt-0">
+					<div class="media">
+						<div class="media-body">
+							<p>20-04-2020 <span>10:10</span></p>
+							<h6>Updated Product<span class="dot-notification"></span></h6>
+							<span>Quisque a consequat ante sit amet magna...</span>
+						</div>
+					</div>
+					<div class="media">
+						<div class="media-body">
+							<p>20-04-2020<span class="ps-1">Today</span><span class="badge badge-secondary">New</span></p>
+							<h6>Tello just like your product<span class="dot-notification"></span></h6>
+							<span>Quisque a consequat ante sit amet magna... </span>
+						</div>
+					</div>
+					<div class="media">
+						<div class="media-body">
+							<div class="d-flex mb-3">
+								<div class="inner-img"><img class="img-fluid" src="{{asset('assets/images/notification/1.jpg')}}" alt="Product-1"></div>
+								<div class="inner-img"><img class="img-fluid" src="{{asset('assets/images/notification/2.jpg')}}" alt="Product-2"></div>
+							</div>
+							<span class="mt-3">Quisque a consequat ante sit amet magna...</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-4 xl-50 appointment box-col-6">
+			<div class="card">
+				<div class="card-header">
+					<div class="header-top">
+						<h5 class="m-0">Market Value</h5>
+						<div class="card-header-right-icon">
+							<select class="button btn btn-primary">
+								<option>Year</option>
+								<option>Month</option>
+								<option>Day</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="card-Body">
+					<div class="radar-chart">
+						<div id="marketchart">       </div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-4 xl-100 chat-sec box-col-6">
+			<div class="card chat-default">
+				<div class="card-header card-no-border">
+					<div class="media media-dashboard">
+						<div class="media-body">
+							<h5 class="mb-0">Live Chat</h5>
+						</div>
+						<div class="icon-box"><i class="fa fa-ellipsis-h"></i></div>
+					</div>
+				</div>
+				<div class="card-body chat-box">
+					<div class="chat">
+						<div class="media left-side-chat">
+							<div class="media-body d-flex">
+								<div class="img-profile"> <img class="img-fluid" src="{{asset('assets/images/user.jpg')}}" alt="Profile"></div>
+								<div class="main-chat">
+									<div class="message-main"><span class="mb-0">Hi deo, Please send me link.</span></div>
+									<div class="sub-message message-main"><span class="mb-0">Right Now</span></div>
+								</div>
+							</div>
+							<p class="f-w-400">7:28 PM</p>
+						</div>
+						<div class="media right-side-chat">
+							<p class="f-w-400">7:28 PM</p>
+							<div class="media-body text-end">
+								<div class="message-main pull-right">
+									<span class="mb-0 text-start">How can do for you</span>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+						</div>
+						<div class="media left-side-chat">
+							<div class="media-body d-flex">
+								<div class="img-profile"> <img class="img-fluid" src="{{asset('assets/images/user.jpg')}}" alt="Profile"></div>
+								<div class="main-chat">
+									<div class="sub-message message-main mt-0"><span>It's argenty</span></div>
+								</div>
+							</div>
+							<p class="f-w-400">7:28 PM</p>
+						</div>
+						<div class="media right-side-chat">
+							<div class="media-body text-end">
+								<div class="message-main pull-right"><span class="loader-span mb-0 text-start" id="wave"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+							</div>
+						</div>
+						<div class="input-group">
+							<input class="form-control" id="mail" type="text" placeholder="Type Your Message..." name="text">
+							<div class="send-msg"><i data-feather="send"></i></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> --}}
+            {{-- <div class="col-xl-4 col-lg-12 xl-50 calendar-sec box-col-6">
+			<div class="card gradient-primary o-hidden">
+				<div class="card-body">
+					<div class="setting-dot">
+						<div class="setting-bg-primary date-picker-setting position-set pull-right"><i class="fa fa-spin fa-cog"></i></div>
+					</div>
+					<div class="default-datepicker">
+						<div class="datepicker-here" data-language="en"></div>
+					</div>
+					<span class="default-dots-stay overview-dots full-width-dots"><span class="dots-group"><span class="dots dots1"></span><span class="dots dots2 dot-small"></span><span class="dots dots3 dot-small"></span><span class="dots dots4 dot-medium"></span><span class="dots dots5 dot-small"></span><span class="dots dots6 dot-small"></span><span class="dots dots7 dot-small-semi"></span><span class="dots dots8 dot-small-semi"></span><span class="dots dots9 dot-small">                </span></span></span>
+				</div>
+			</div>
+		</div> --}}
         </div>
-
-        <!-- Main Actions -->
-        <div class="section-title">
-            Quick Actions
-        </div>
-
-        <div class="main-grid">
-
-            <a href="{{route('sales.index')}}" class="action-card green">
-                <i data-feather="shopping-bag"></i>
-                <div class="action-title">Sale</div>
-            </a>
-
-            <a href="{{route('purchase.index')}}" class="action-card red">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Purchase</div>
-            </a>
-
-            <a href="{{route('supplier.index')}}" class="action-card orange">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Supplier</div>
-            </a>
-
-            <a href="{{ route('inventory.index') }}" class="action-card teal">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Inventory</div>
-            </a>
-
-            <a href="/sales-return" class="action-card blue">
-                <i data-feather="corner-up-left"></i>
-                <div class="action-title">Sale Return</div>
-            </a>
-
-{{--            <a href="/quotation" class="action-card purple">--}}
-{{--                <i data-feather="shopping-cart"></i>--}}
-{{--                <div class="action-title">Quotation</div>--}}
-{{--            </a>--}}
-
-            <a href="/purchase-return" class="action-card red">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Purchase Return</div>
-            </a>
-
-            <a href="/receipt" class="action-card green">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Receipt</div>
-            </a>
-
-{{--            <a href="/transfer" class="action-card teal">--}}
-{{--                <i data-feather="shopping-cart"></i>--}}
-{{--                <div class="action-title">Items Transfer</div>--}}
-{{--            </a>--}}
-
-            <a href="/adjustment" class="action-card pink">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Stock Adjustment</div>
-            </a>
-
-            <a href="/daily-report" class="action-card blue">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Daily Report</div>
-            </a>
-
-            <a href="{{route('sales.index')}}" class="action-card purple">
-                <i data-feather="shopping-cart"></i>
-                <div class="action-title">Sales Analysis</div>
-            </a>
-
-        </div>
+    </div>
+    <script type="text/javascript">
+        var session_layout = '{{ session()->get('layout') }}';
+    </script>
 @endsection
 
 @section('script')

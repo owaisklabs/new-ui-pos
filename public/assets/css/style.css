@@ -34846,7 +34846,7 @@ body[class*='dark-'] .for-light {
 .page-wrapper.compact-wrapper .page-body-wrapper .page-body {
     min-height: calc(100vh - 80px);
     margin-top: 80px;
-    /*margin-left: 280px*/
+    margin-left: 280px
 }
 
 .page-wrapper.compact-wrapper.dark-sidebar .toggle-sidebar svg, .page-wrapper.compact-wrapper.color-sidebar .toggle-sidebar svg {

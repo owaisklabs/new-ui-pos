@@ -10,9 +10,46 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sku', 'bar_code', 'title', 'subtitle', 'publisher_id', 'published_at',
-        'description', 'cost_price', 'sell_price', 'cover_image', 'pages', 'language'
+        'branch_id', 'sku', 'bar_code', 'title', 'subtitle', 'publisher_id', 'published_at',
+        'description', 'cost_price', 'sell_price', 'cover_image', 'pages', 'language',
+        'conversion_factor', 'purchase_unit', 'base_unit'
     ];
+
+    public function isDualUnit(): bool
+    {
+        return $this->conversion_factor !== null && (float) $this->conversion_factor > 1;
+    }
+
+    public function priceLabel($price): string
+    {
+        if (!$this->isDualUnit()) {
+            return (string) $price;
+        }
+
+        return number_format($price, 2) . ' / ' . ($this->base_unit ?: 'Feet')
+            . ' (' . number_format($price * (float) $this->conversion_factor, 2) . ' / ' . ($this->purchase_unit ?: 'Roll') . ')';
+    }
+
+    public function stockLabel($quantity): string
+    {
+        if (!$this->isDualUnit()) {
+            return (string) $quantity;
+        }
+
+        $base = $this->base_unit ?: 'Feet';
+
+        $factor = (float) $this->conversion_factor;
+        $packs = $quantity > 0 ? (int) floor($quantity / $factor) : 0;
+
+        if ($packs === 0) {
+            return $quantity . ' ' . $base;
+        }
+
+        $loose = $quantity - ($packs * $factor);
+
+        return $quantity . ' ' . $base . ' (' . \App\Services\UnitConversion::format($packs, $loose, $this->purchase_unit, $this->base_unit) . ')';
+    }
+
     public function getCoverImageUrlAttribute()
     {
         return asset('storage/' . $this->cover_image);
@@ -23,23 +60,31 @@ class Book extends Model
         return $this->belongsToMany(Author::class);
     }
 
-
     public function publisher()
     {
         return $this->belongsTo(Publisher::class);
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function inventory()
     {
         return $this->hasOne(Inventory::class);
     }
 
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
 
     public function purchaseItems()
     {
         return $this->hasMany(PurchaseItem::class);
     }
+
     public function sales()
     {
         return $this->hasMany(Sale::class);
@@ -49,8 +94,17 @@ class Book extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+
     public function priceHistories()
     {
         return $this->hasMany(PriceHistory::class);
+    }
+
+    public function scopeByBranch($query, $branchId)
+    {
+        return $query->where(function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId)
+              ->orWhereNull('branch_id');
+        });
     }
 }

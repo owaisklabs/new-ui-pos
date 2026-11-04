@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,5 +27,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
+
+        $appSetting = null;
+
+        try {
+            if (Schema::hasTable('settings')) {
+                $appSetting = Setting::query()->first();
+            }
+        } catch (\Throwable $exception) {
+            $appSetting = null;
+        }
+
+        View::share('appSetting', $appSetting);
     }
 }
