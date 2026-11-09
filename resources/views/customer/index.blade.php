@@ -20,21 +20,24 @@
     <div class="container-fluid">
         {{-- <div class="row"> --}}
         <form action="#" class="row" method="GET">
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom01">Query</label>
                 <input class="form-control" name="query" type="text" placeholder="First name" required="">
                 <div class="valid-feedback">Looks good!</div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom02">From Date</label>
                 <input class="form-control" name="from_date" id="validationCustom02" type="date"  >
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom02">To Date</label>
                 <input class="form-control" name="to_date" id="validationCustom02" type="date"  >
             </div>
-            <div class="col-md-3 mb-3" style="margin-top: 25px;">
+            <div class="col-md-2 mb-3" style="margin-top: 25px;">
                 <button class="btn btn-pill btn-primary btn-air-primary btn-lg" type="submit">Search</button>
+            </div>
+            <div class="col-md-2 mb-3" style="margin-top: 25px;">
+                <a href="https://pos_new_ui.test/dashboard/supplier/create" class="btn  btn-success btn-air-success btn-lg" data-bs-original-title="" title="">Create Supplier</a>
             </div>
         </form>
         {{-- </div> --}}

@@ -67,14 +67,23 @@ class CartController extends Controller
             $request->validate([
                 'roll_qty' => 'nullable|integer|min:0',
                 'feet_qty' => 'nullable|integer|min:0',
+                'roll_price' => 'nullable|numeric|min:0',
+                'feet_price' => 'nullable|numeric|min:0',
             ]);
             $rolls = (int) $request->input('roll_qty', 0);
             $feet = (int) $request->input('feet_qty', 0);
             $cartItem->pivot->roll_qty = $rolls;
             $cartItem->pivot->feet_qty = $feet;
+            $cartItem->pivot->roll_price = $request->input('roll_price') ?: 0;
+            $cartItem->pivot->feet_price = $request->input('feet_price') ?: 0;
             $cartItem->pivot->quantity = UnitConversion::toBase($rolls, $feet, $product->conversion_factor);
         } else {
+            $request->validate([
+                'quantity' => 'nullable|numeric|min:0',
+                'unit_price' => 'nullable|numeric|min:0',
+            ]);
             $cartItem->pivot->quantity = $request->quantity;
+            $cartItem->pivot->unit_price = $request->input('unit_price') ?: 0;
         }
         $cartItem->pivot->discount = $request->discount;
         $cartItem->pivot->save();

@@ -54,8 +54,8 @@
             </div>
         </form>
         {{-- </div> --}}
-        <div class="row">
-            <div class="col-xl-4  chart_data_right box-col-12">
+        <div class="row flex-nowrap">
+            <div class="col chart_data_right" style="width: auto; max-width: none; flex: 1 1 0;">
                 <div class="card">
                     <div class="card-body">
                         <div class="media align-items-center">
@@ -69,26 +69,52 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4  chart_data_right box-col-12">
+            <div class="col chart_data_right" style="width: auto; max-width: none; flex: 1 1 0;">
                 <div class="card">
                     <div class="card-body">
                         <div class="media align-items-center">
                             <div class="media-body right-chart-content">
                                 <h4>{{number_format($totals['paid_amount_sum'],2)}}</h4>
-                                <span>Total Amount Recived</span>
+                                <span>Amount Recived</span>
                             </div>
 
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4  chart_data_right box-col-12">
+            <div class="col chart_data_right" style="width: auto; max-width: none; flex: 1 1 0;">
                 <div class="card">
                     <div class="card-body">
                         <div class="media align-items-center">
                             <div class="media-body right-chart-content">
                                 <h4>{{number_format($totals['total_amount_sum']-$totals['paid_amount_sum'],2)}}</h4>
-                                <span>Total Amount Balance</span>
+                                <span>Amount Balance</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col chart_data_right" style="width: auto; max-width: none; flex: 1 1 0;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>{{number_format($totals['cash_received_sum'],2)}}</h4>
+                                <span>Amount Recived Cash</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col chart_data_right" style="width: auto; max-width: none; flex: 1 1 0;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>{{number_format($totals['account_received_sum'],2)}}</h4>
+                                <span>Amount Recived A/C</span>
                             </div>
 
                         </div>

@@ -14,7 +14,7 @@ class Purchase extends Model
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_RETURNED = 'returned';
 
-    protected $fillable = ['branch_id', 'supplier_id', 'invoice_no', 'expense', 'payment_type', 'purchase_date', 'total_amount', 'status', 'created_by'];
+    protected $fillable = ['branch_id', 'supplier_id', 'invoice_no', 'expense', 'payment_type', 'purchase_date', 'total_amount', 'paid_amount', 'status', 'created_by'];
 
     protected $casts = [
         'purchase_date' => 'datetime',
@@ -28,6 +28,43 @@ class Purchase extends Model
     public function items()
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function paymentDetails()
+    {
+        return $this->hasMany(PurchasePaymentDetail::class);
+    }
+
+    public function payableAmount(): float
+    {
+        return round((float) $this->total_amount + (float) $this->expense, 2);
+    }
+
+    public function balanceAmount(): float
+    {
+        return round(max(0, $this->payableAmount() - (float) $this->paid_amount), 2);
+    }
+
+    public function isCleared(): bool
+    {
+        return $this->balanceAmount() <= 0;
+    }
+
+    public function paymentLabel(): string
+    {
+        if (in_array($this->status, [self::STATUS_CANCELLED, self::STATUS_RETURNED], true)) {
+            return ucfirst($this->status);
+        }
+
+        if ($this->isCleared()) {
+            return 'Paid';
+        }
+
+        if ($this->payment_type === 'credit') {
+            return 'Credit';
+        }
+
+        return ucfirst((string) $this->status);
     }
 
     public function user()

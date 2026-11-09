@@ -61,7 +61,6 @@
                             <th scope="col">Title</th>
                             <th scope="col">Qty</th>
                             <th scope="col">Cost Price</th>
-                            <th scope="col">Sell price</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
@@ -74,7 +73,6 @@
 
                             <td>{{ $item->inventory ? $item->stockLabel($item->inventory->quantity) : "-" }}</td>
                             <td>{{ $item->priceLabel($item->cost_price) }}</td>
-                            <td>{{ $item->priceLabel($item->sell_price) }}</td>
                             <td class="d-flex align-items-center gap-2">
 
                                 {{-- Delete --}}

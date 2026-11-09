@@ -113,7 +113,7 @@
 
                 <td>{{ $item->quantityLabel() }}</td>
 
-                <td>{{ number_format($item->unit_price, 2) }}</td>
+                <td>{{ $item->priceLabel() }}</td>
 
                 <td>{{ number_format($item->sale_price, 2) }}</td>
 

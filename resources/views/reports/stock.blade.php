@@ -57,7 +57,6 @@
                                     <th>Branch</th>
                                     <th>Quantity</th>
                                     <th>Cost Price</th>
-                                    <th>Sell Price</th>
                                     <th>Stock Value</th>
                                 </tr>
                             </thead>
@@ -71,7 +70,6 @@
                                             <td>{{ $inventory->branch->name ?? '-' }}</td>
                                             <td>{{ $book->stockLabel($inventory->quantity) }}</td>
                                             <td>{{ number_format($book->cost_price, 2) }}</td>
-                                            <td>{{ number_format($book->sell_price, 2) }}</td>
                                             <td>{{ number_format($inventory->quantity * $book->cost_price, 2) }}</td>
                                         </tr>
                                     @empty

@@ -83,11 +83,6 @@
                         <small id="cost_price_hint" class="text-info"></small>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="sell_price"><span id="sell_price_text">Sell Price</span> <span class="text-danger">*</span></label>
-                        <input class="form-control" id="sell_price" type="number" step="0.01" min="0" value ="{{ old('sell_price', $book->isDualUnit() ? round($book->sell_price * $book->conversion_factor, 2) : $book->sell_price) }}" name="sell_price" placeholder="Sell Price" required="" data-bs-original-title="" title="">
-                        <small id="sell_price_hint" class="text-info"></small>
-                    </div>
-                    <div class="col-md-3 mb-3">
                         <label for="cover_image">Cover Image</label>
                         <input class="form-control" id="cover_image" type="file"  name="cover_image" placeholder="Cover Image" data-bs-original-title="" title="">
                     </div>
@@ -168,7 +163,7 @@
                 const pack = packEl.value.trim() || 'Roll';
                 const base = baseEl.value.trim() || 'Feet';
 
-                [['cost_price', 'Cost Price'], ['sell_price', 'Sell Price']].forEach(function (field) {
+                [['cost_price', 'Cost Price']].forEach(function (field) {
                     const value = parseFloat(document.getElementById(field[0]).value);
                     document.getElementById(field[0] + '_text').textContent =
                         dual ? field[1] + ' per ' + pack : field[1];
@@ -177,7 +172,7 @@
                 });
             }
 
-            ['conversion_factor', 'purchase_unit', 'base_unit', 'cost_price', 'sell_price'].forEach(function (id) {
+            ['conversion_factor', 'purchase_unit', 'base_unit', 'cost_price'].forEach(function (id) {
                 document.getElementById(id).addEventListener('input', refreshPrices);
             });
             refreshPrices();

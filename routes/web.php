@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('get-book-sales-by-id/{id}',[\App\Http\Controllers\BookController::class,'getBookSalesById'])->name('get-book-sales-by-id');
         Route::get('payment-receive',[\App\Http\Controllers\SaleController::class,'paymentReceive'])->name('payment-receive');
+        Route::post('purchase-payment',[\App\Http\Controllers\PurchaseController::class,'paymentPay'])->name('purchase.payment');
         Route::get('get-all-customer',[\App\Http\Controllers\CustomerController::class,'getAllCustomers'])->name('get-all-customer');
         Route::get('get-book-by-title',[\App\Http\Controllers\BookController::class,'getBookByTitle'])->name('get-book-by-title');
         Route::get('cart',[\App\Http\Controllers\CartController::class,'getCart'])->name('get-cart');

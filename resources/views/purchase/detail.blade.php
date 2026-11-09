@@ -68,6 +68,21 @@
                 </p>
             </div>
 
+            <div class="col-md-6 mt-3">
+                <strong>Payment:</strong>
+                <p class="mb-0">{{ $purchase->paymentLabel() }}</p>
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <strong>Amount Paid:</strong>
+                <p class="mb-0">{{ number_format($purchase->paid_amount, 2) }}</p>
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <strong>Amount Remain (Credit):</strong>
+                <p class="mb-0">{{ number_format($purchase->balanceAmount(), 2) }}</p>
+            </div>
+
         </div>
 
         <div class="row mb-3">
@@ -143,7 +158,7 @@
         <thead class="table-light">
             <tr>
                 <th>#</th>
-                <th>Amount Received</th>
+                <th>Amount Paid</th>
                 <th>Payment Type</th>
                 <th>Account / Cheque No</th>
                 <th>Remarks</th>
@@ -154,7 +169,7 @@
 
         <tbody>
 
-      {{--  @forelse($purchase->salesPaymentsDetails as $index => $pay) 
+        @forelse($purchase->paymentDetails as $index => $pay)
             <tr>
                 <td>{{ $index + 1 }}</td>
 
@@ -165,7 +180,7 @@
                 <td>
                     @if($pay->payment_type == 'cheque')
                         Cheque #: {{ $pay->cheque_number }}
-                    @elseif($pay->payment_type == 'bank')
+                    @elseif($pay->payment_type == 'online')
                         Account #: {{ $pay->account_number }}
                     @else
                         ---
@@ -174,7 +189,7 @@
 
                 <td>{{ $pay->remarks ?? '---' }}</td>
 
-                <td>{{ $pay->created_by ?? '---' }}</td>
+                <td>{{ $pay->user->name ?? '---' }}</td>
 
                 <td>
                     {{ $pay->created_at?->format('d M Y H:i') }}
@@ -187,7 +202,6 @@
                 </td>
             </tr>
         @endforelse
-        --}}
 
         </tbody>
     </table>
@@ -198,12 +212,12 @@
         <div class="row mt-3">
             <div class="col-md-12 text-end">
 
-                <a href="{{ url('/dashboard/sales/'.$purchase->id.'/edit') }}"
+                <a href="{{ route('purchase.edit', $purchase->id) }}"
                    class="btn btn-warning ">
                    Edit
                 </a>
 
-                <form action="{{ url('/dashboard/sales/'.$purchase->id) }}"
+                <form action="{{ route('purchase.destroy', $purchase->id) }}"
                     method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
@@ -218,7 +232,7 @@
                    class="btn btn-primary ">
                     Return
                 </a>
-                <a href="{{ url('/dashboard/sales') }}"
+                <a href="{{ route('purchase.index') }}"
                    class="btn btn-secondary ">
                     Back
                 </a>

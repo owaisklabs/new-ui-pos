@@ -54,6 +54,7 @@
                             <option value="cash">Cash</option>
                             <option value="online">Online</option>
                             <option value="cheque">Cheque</option>
+                            <option value="credit">Credit</option>
 
 
                         </select>

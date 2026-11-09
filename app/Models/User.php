@@ -29,7 +29,7 @@ class User extends Authenticatable
 
     public function cart()
     {
-        return $this->belongsToMany(Book::class, 'user_cart')->withPivot('quantity', 'discount', 'roll_qty', 'feet_qty');
+        return $this->belongsToMany(Book::class, 'user_cart')->withPivot('quantity', 'discount', 'roll_qty', 'feet_qty', 'roll_price', 'feet_price', 'unit_price');
     }
 
     public function defaultBranch()

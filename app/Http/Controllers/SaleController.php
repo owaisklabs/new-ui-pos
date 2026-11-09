@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\StockException;
 use App\Models\Book;
 use App\Models\Inventory;
-use App\Services\UnitConversion;
+use App\Services\SaleLinePricing;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\SalesPaymentDetail;
@@ -48,9 +48,18 @@ class SaleController extends Controller
             }
         }
 
+        $saleIds = (clone $query)->select('sales.id');
+        $paymentSplit = SalesPaymentDetail::query()
+            ->whereIn('sales_id', $saleIds)
+            ->selectRaw("COALESCE(SUM(CASE WHEN payment_type = 'cash' THEN amount_received ELSE 0 END), 0) as cash_sum")
+            ->selectRaw("COALESCE(SUM(CASE WHEN payment_type IN ('online', 'cheque') THEN amount_received ELSE 0 END), 0) as account_sum")
+            ->first();
+
         $totals = [
             'total_amount_sum' => (clone $query)->toBase()->sum('total_amount'),
             'paid_amount_sum'  => (clone $query)->toBase()->sum('paid_amount'),
+            'cash_received_sum' => (float) ($paymentSplit->cash_sum ?? 0),
+            'account_received_sum' => (float) ($paymentSplit->account_sum ?? 0),
         ];
 
         $sales = $query->latest()->paginate(50);
@@ -72,15 +81,16 @@ class SaleController extends Controller
         public function store(Request $request)
         {
             $request->validate([
-                'amount' => 'required|numeric|min:0',
+                'amount' => 'nullable|numeric|min:0',
                 'cartData' => 'required|array|min:1',
                 'cartData.*.book_id' => 'required|integer|exists:books,id',
                 'cartData.*.qty' => 'nullable|numeric|min:0',
                 'cartData.*.roll_qty' => 'nullable|integer|min:0',
                 'cartData.*.feet_qty' => 'nullable|integer|min:0',
-                'cartData.*.price' => 'required|numeric|min:0',
+                'cartData.*.price' => 'nullable|numeric|min:0',
+                'cartData.*.roll_price' => 'nullable|numeric|min:0',
+                'cartData.*.feet_price' => 'nullable|numeric|min:0',
                 'cartData.*.discount' => 'nullable|numeric|min:0|max:100',
-                'cartData.*.line_total' => 'required|numeric|min:0',
             ]);
 
             DB::beginTransaction();
@@ -92,75 +102,59 @@ class SaleController extends Controller
 
                 $invoiceNumber = str_pad($nextId, 6, '0', STR_PAD_LEFT);
 
-                $paidAmount = ($request->sales_status === Sale::STATUS_PAID) ? $request->amount : 0;
-
                 $sale = Sale::create([
                     'invoice_no'   => $invoiceNumber,
                     'sale_date'    => now(),
-                    'total_amount' => $request->amount,
-                    'paid_amount'  => $paidAmount,
+                    'total_amount' => 0,
+                    'paid_amount'  => 0,
                     'customer_id'  => $request->customer_id,
                     'created_by'   => auth()->id(),
                     'status'       => $request->sales_status,
                 ]);
 
+                $grandTotal = 0;
+
                 foreach ($request->cartData as $item) {
 
                     $book = Book::findOrFail($item['book_id']);
-                    $unitPrice = $item['price'];
-                    $cost_price = $item['cost_price'];
-                    $discount = $item['discount'] ?? 0;
-                    $afterDiscount = $unitPrice * (1 - ($discount / 100));
-                    $dual = [];
+                    // Client-submitted line_total is ignored: the backend is authoritative.
+                    $line = SaleLinePricing::calculate($book, $item);
+                    $quantity = $line['quantity'];
 
-                    if ($book->isDualUnit()) {
-                        $rolls = (int) ($item['roll_qty'] ?? 0);
-                        $feet = (int) ($item['feet_qty'] ?? 0);
-                        $quantity = UnitConversion::toBase($rolls, $feet, $book->conversion_factor);
-
-                        if ($quantity <= 0) {
-                            throw new StockException("Enter Roll or Feet quantity for \"{$book->title}\".");
-                        }
-
+                    if ($line['dual']) {
                         $available = (float) Inventory::where('book_id', $book->id)->lockForUpdate()->value('quantity');
                         if ($quantity > $available) {
                             throw new StockException(
                                 "Insufficient stock for \"{$book->title}\". Available: {$available} " . ($book->base_unit ?: 'Feet') . ", requested: {$quantity}."
                             );
                         }
-
-                        $dual = [
-                            'roll_qty' => $rolls,
-                            'feet_qty' => $feet,
-                            'conversion_factor' => $book->conversion_factor,
-                            'purchase_unit' => $book->purchase_unit ?: 'Roll',
-                            'base_unit' => $book->base_unit ?: 'Feet',
-                        ];
-                        $lineTotalAfterDiscount = round($quantity * $afterDiscount, 2);
-                    } else {
-                        $quantity = $item['qty'] ?? 0;
-                        if ($quantity < 1) {
-                            throw new StockException("Quantity must be at least 1 for \"{$book->title}\".");
-                        }
-                        $lineTotalAfterDiscount = $item['line_total'];
                     }
 
                     SaleItem::create([
                         'sale_id' => $sale->id,
-                        'book_id' => $item['book_id'],
+                        'book_id' => $book->id,
                         'quantity' => $quantity,
-                        'unit_price' => $unitPrice,
-                        'cost_price' => $cost_price,
-                        'sale_price' => $afterDiscount,
-                        'line_total' => $quantity * $unitPrice,
-                        'discount' => $discount,
-                        'total' => $lineTotalAfterDiscount,
-                    ] + $dual);
-                    $inventory = Inventory::where('book_id', $item['book_id'])->first();
+                        'unit_price' => $line['unit_price'],
+                        'cost_price' => $item['cost_price'] ?? $book->cost_price,
+                        'sale_price' => $line['sale_price'],
+                        'line_total' => $line['gross'],
+                        'discount' => $line['discount'],
+                        'total' => $line['net'],
+                    ] + $line['dual_fields']);
+
+                    $inventory = Inventory::where('book_id', $book->id)->first();
                     if ($inventory) {
                         $inventory->decrement('quantity', $quantity);
                     }
+
+                    $grandTotal += $line['net'];
                 }
+
+                $grandTotal = round($grandTotal, 2);
+                $sale->update([
+                    'total_amount' => $grandTotal,
+                    'paid_amount' => $request->sales_status === Sale::STATUS_PAID ? $grandTotal : 0,
+                ]);
 
                 DB::commit();
                 $data = $sale->load('items');

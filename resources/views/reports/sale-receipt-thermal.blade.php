@@ -117,7 +117,7 @@
                 <tr>
                 <td>{{$item->book->title ?? "-"}}</td>
                 <td >{{ $item->quantityLabel() }}</td>
-                <td >{{number_format($item->unit_price,2)}}</td>
+                <td >{{ $item->priceLabel() }}</td>
                 <td >{{$item->discount}}%</td>
                 <td >{{number_format($item->total,2)}}</td>
                 @php

@@ -32,10 +32,6 @@
                         <strong>Publisher:</strong>
                         <p class="mb-0">{{ $book->publisher->name ?? 'N/A' }}</p>
                     </div>
-                    <div class="col-md-3">
-                        <strong>Sell Price:</strong>
-                        <p class="mb-0">{{ number_format($book->sell_price, 2) }}</p>
-                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -93,7 +89,7 @@
                                 <td>{{ $sale->sale_date ?? '-' }}</td>
                                 <td>{{ $sale->customer->name ?? 'N/A' }}</td>
                                 <td>{{ $item->quantityLabel() }}</td>
-                                <td>{{ number_format($item->unit_price, 2) }}</td>
+                                <td>{{ $item->priceLabel() }}</td>
                                 <td>{{ number_format($item->sale_price, 2) }}</td>
                                 <td>{{ $item->discount ?? 0 }}%</td>
                                 <td>{{ number_format($item->total, 2) }}</td>

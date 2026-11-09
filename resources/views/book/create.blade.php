@@ -30,38 +30,16 @@
             <form class="needs-validation"  action="{{route('book.store')}}" METHOD="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <label for="sku">SKU <span class="text-danger">*</span></label>
-                        <input class="form-control abc" id="sku" type="text" name="sku" value="{{ old('sku') }}" placeholder="SKU" required="" data-bs-original-title="" title="">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="bar_code">Barcode <span class="text-danger">*</span></label>
-                        <input class="form-control" id="bar_code" type="text" name="bar_code" value="{{ old('bar_code') }}" placeholder="Barcode" required="" data-bs-original-title="" title="">
-                    </div>
+                    
                     <div class="col-md-3 mb-3">
                         <label for="title">Title <span class="text-danger">*</span></label>
                         <input class="form-control" id="title" type="text" name="title" value="{{ old('title') }}" placeholder="Title" required="" data-bs-original-title="" title="">
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="subtitle">Sub Title</label>
-                        <input class="form-control" id="subtitle" type="text" name="subtitle" value="{{ old('subtitle') }}" placeholder="Sub Title"  data-bs-original-title="" title="">
-                    </div>
-
-
-
-                    <div class="col-md-3 mb-3">
-                        <label for="description">Description</label>
-                        <input class="form-control" id="description" type="text" name="description" value="{{ old('description') }}" placeholder="Description"  data-bs-original-title="" title="">
-                    </div>
+                    
                     <div class="col-md-3 mb-3">
                         <label for="cost_price"><span id="cost_price_text">Cost Price</span> <span class="text-danger">*</span></label>
                         <input class="form-control" id="cost_price" type="number" step="0.01" min="0" name="cost_price" value="{{ old('cost_price') }}" placeholder="Cost Price" required="" data-bs-original-title="" title="">
                         <small id="cost_price_hint" class="text-info"></small>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="sell_price"><span id="sell_price_text">Sell Price</span> <span class="text-danger">*</span></label>
-                        <input class="form-control" id="sell_price" type="number" step="0.01" min="0" name="sell_price" value="{{ old('sell_price') }}" placeholder="Sell Price" required="" data-bs-original-title="" title="">
-                        <small id="sell_price_hint" class="text-info"></small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="cover_image">Cover Image <span class="text-danger">*</span></label>
@@ -137,7 +115,7 @@
                 const pack = packEl.value.trim() || 'Roll';
                 const base = baseEl.value.trim() || 'Feet';
 
-                [['cost_price', 'Cost Price'], ['sell_price', 'Sell Price']].forEach(function (field) {
+                [['cost_price', 'Cost Price']].forEach(function (field) {
                     const value = parseFloat(document.getElementById(field[0]).value);
                     document.getElementById(field[0] + '_text').textContent =
                         dual ? field[1] + ' per ' + pack : field[1];
@@ -146,7 +124,7 @@
                 });
             }
 
-            ['conversion_factor', 'purchase_unit', 'base_unit', 'cost_price', 'sell_price'].forEach(function (id) {
+            ['conversion_factor', 'purchase_unit', 'base_unit', 'cost_price'].forEach(function (id) {
                 document.getElementById(id).addEventListener('input', refreshPrices);
             });
             refreshPrices();

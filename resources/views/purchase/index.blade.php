@@ -20,7 +20,7 @@
     <div class="container-fluid">
         {{-- <div class="row"> --}}
         <form action="{{route('purchase.index')}}" class="row" method="GET">
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom01">Invoice No</label>
                 <select name="query[book_id]" class="form-control">
                     <option value="">Select Book</option>
@@ -30,7 +30,7 @@
                 </select>
                 <div class="valid-feedback">Looks good!</div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <label for="validationCustom01">Supplier</label>
                 <select name="query[book_id]" class="form-control">
                     <option value="">Select Book</option>
@@ -51,14 +51,49 @@
             <div class="col-md-2 mb-3" style="margin-top: 25px;">
                 <button class="btn btn-pill btn-primary btn-air-primary btn-lg" type="submit">Search</button>
             </div>
-            <div class="col-md-12 my-5" style="margin-top: 25px; display: flex; justify-content: flex-end;">
-                <a href="{{route('purchase.create')}}" class="btn  btn-success btn-air-success btn-lg" type="submit">Create Purchase</a>
+            <div class="col-md-2 mb-3" style="margin-top: 25px;">
+                <a href="{{route('purchase.create')}}" class="btn btn-success btn-air-success btn-lg text-nowrap" type="submit">Create Purchase</a>
             </div>
         </form>
         <div class="row">
-
-
-
+            <div class="col-xl-4 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>{{ number_format($totals['total_amount_sum'], 2) }}</h4>
+                                <span>Total Purchase Amount</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>{{ number_format($totals['paid_amount_sum'], 2) }}</h4>
+                                <span>Amount Paid</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 chart_data_right box-col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center">
+                            <div class="media-body right-chart-content">
+                                <h4>{{ number_format($totals['total_amount_sum'] - $totals['paid_amount_sum'], 2) }}</h4>
+                                <span>Amount Remain (Credit)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
                 <div class="table-responsive">
                     <table class="table table-border-vertical " style="background-color: white;">
                         <thead>
@@ -70,47 +105,51 @@
                             <th scope="col">Purchase Amount</th>
                             <th scope="col">Expense</th>
                             <th scope="col">Total Amount</th>
+                            <th scope="col">Paid Amount</th>
+                            <th scope="col">Balance</th>
                             <th scope="col">Items</th>
                             <th scope="col">Status</th>
-
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($purchases as $item)
-
+                            @php
+                                $payable = $item->payableAmount();
+                                $balance = $item->balanceAmount();
+                                $paymentLabel = $item->paymentLabel();
+                                $statusClass = [
+                                    'Credit' => 'bg-warning text-dark',
+                                    'Paid' => 'bg-success',
+                                    'Pending' => 'bg-secondary',
+                                    'Received' => 'bg-success',
+                                    'Cancelled' => 'bg-danger',
+                                    'Returned' => 'bg-dark',
+                                ][$paymentLabel] ?? 'bg-secondary';
+                            @endphp
                             <tr>
                                 <td scope="row">{{$item->id}}</td>
                                 <th >{{$item->invoice_no}}</th>
-                                <td>{{$item->supplier->name}}</td>
+                                <td>{{$item->supplier->name ?? '-'}}</td>
                                 <td>{{$item->purchase_date}}</td>
                                 <td>{{number_format($item->total_amount, 2)}}</td>
                                 <td>{{number_format($item->expense, 2)}}</td>
-                                <td>{{number_format($item->total_amount + $item->expense, 2)}}</td>
+                                <td>{{number_format($payable, 2)}}</td>
+                                <td>{{number_format($item->paid_amount, 2)}}</td>
+                                <td>{{number_format($balance, 2)}}</td>
                                 <td>
                                     @foreach($item->items as $book)
                                         {{$book->book->title ?? '-'}},
                                     @endforeach
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{
-                                        $item->status == 'pending' ? 'secondary' :
-                                        ($item->status == 'received' ? 'success' :
-                                        ($item->status == 'cancelled' ? 'warning' : 'dark'))
-                                    }}">
-                                        {{ ucfirst($item->status) }}
-                                    </span>
+                                    <span class="badge {{ $statusClass }}">{{ $paymentLabel }}</span>
                                 </td>
-
-                                @php
-                                    $balance= $item->total_amount - $item->paid_amount;
-                                @endphp
                                 <td class="d-flex align-items-center gap-2">
                                     <a href="{{ route('purchase.show', $item->id) }}" class="btn btn-sm btn-primary p-1 d-flex align-items-center justify-content-center">
                                         <i data-feather="eye"></i>
                                     </a>
 
-                                    {{-- Delete --}}
                                     <form action="{{ route('purchase.destroy', $item->id) }}" method="POST"
                                           onsubmit="return confirm('Are you sure you want to delete this purchase?');" class="m-0 p-0">
                                         @csrf
@@ -120,23 +159,27 @@
                                         </button>
                                     </form>
 
-                                    {{-- Edit --}}
-
                                     <a href="{{ route('purchase.edit', $item->id) }}" class="btn btn-sm btn-primary p-1 d-flex align-items-center justify-content-center">
                                         <i data-feather="edit"></i>
                                     </a>
-                                    <button  class="btn btn-sm btn-success p-1 payment-received d-none" data-sales-id="{{$item->id}}" data-receive-amount="{{$balance}}">
+                                    @if($balance > 0 && !in_array($item->status, ['cancelled', 'returned']))
+                                        <button type="button" class="btn btn-sm btn-success p-1 payment-received" data-purchase-id="{{$item->id}}" data-receive-amount="{{$balance}}">
                                             <i data-feather="dollar-sign"></i>
                                         </button>
-
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
                         <tr>
-                            <th colspan="4">Total</td>
-                            <th >{{number_format($purchases->sum('total_amount'), 2)}}</td>
-                            <th >{{number_format($purchases->sum('expense'), 2)}}</td>
-                            <th >{{number_format($purchases->sum('total_amount') + $purchases->sum('expense'), 2)}}</td>
+                            <th colspan="4">Total</th>
+                            <th>{{ number_format($purchases->sum('total_amount'), 2) }}</th>
+                            <th>{{ number_format($purchases->sum('expense'), 2) }}</th>
+                            <th>{{ number_format($purchases->sum('total_amount') + $purchases->sum('expense'), 2) }}</th>
+                            <th>{{ number_format($purchases->sum('paid_amount'), 2) }}</th>
+                            <th>{{ number_format(($purchases->sum('total_amount') + $purchases->sum('expense')) - $purchases->sum('paid_amount'), 2) }}</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                         </tr>
                         </tbody>
 
@@ -149,12 +192,13 @@
 
 @section('script')
 <script>
+    var BASE_URL = "{{ url('') }}";
+
     $(".payment-received").click(function () {
-            var saleId = $(this).data("sales-id");
+            var purchaseId = $(this).data("purchase-id");
             const receiveAmount = $(this).data("receive-amount");
-            console.log(saleId,receiveAmount)
             Swal.fire({
-                title: "Purchase Amount",
+                title: "Paid Amount",
                 html: `
                     <label>Amount</label>
                     <input id="amount" class="swal2-input" type="text" value="${receiveAmount}">
@@ -170,8 +214,8 @@
                         <label id="extra_label"></label>
                         <input id="extra_value" class="swal2-input" type="text">
                     </div>
-                    <div id="remarks"  margin-top:10px;">
-                        <label id=""> Reamrks</label>
+                    <div id="remarks" style="margin-top:10px;">
+                        <label>Remarks</label>
                         <input id="extra_remarks" class="swal2-input" type="text">
                     </div>
                 `,
@@ -199,8 +243,17 @@
                 },
 
                 preConfirm: () => {
+                    const amount = parseFloat(document.getElementById("amount").value);
+                    if (!amount || amount <= 0) {
+                        Swal.showValidationMessage("Enter an amount greater than 0");
+                        return false;
+                    }
+                    if (amount > parseFloat(receiveAmount)) {
+                        Swal.showValidationMessage("Amount is greater than the remaining balance");
+                        return false;
+                    }
                     return {
-                        amount: document.getElementById("amount").value,
+                        amount: amount,
                         payment_type: document.getElementById("payment_type").value,
                         extra: document.getElementById("extra_value").value || "",
                         extra_remarks: document.getElementById("extra_remarks").value || ""
@@ -209,31 +262,27 @@
             }).then(result => {
                 if (!result.value) return;
 
-                const amount = result.value.amount;
-                const paymentType = result.value.payment_type;
-                const extra = result.value.extra;
-                const remarks = result.value.extra_remarks;
-
-                console.log("Amount:", amount);
-                console.log("sale Id:", saleId);
-                console.log("Payment Type:", paymentType);
-                console.log("Extra Value:", extra);
-                console.log("remarks:", remarks);
-                $.get(`${BASE_URL}/dashboard/payment-receive`, {
-                    sale_id: saleId,
-                    receive_amount: amount,
-                    payment_type: paymentType,
-                    extra_value: extra,    // account number or cheque number
-                    remark: remarks    // account number or cheque number
-                }, function (response) {
-                    window.location.href = response.redirect_url;
-                })
-                    .fail(err => {
-                        Swal.fire("Error!", err.responseJSON.message, "error");
-                    });
+                $.ajax({
+                    url: `${BASE_URL}/dashboard/purchase-payment`,
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                    },
+                    data: {
+                        purchase_id: purchaseId,
+                        receive_amount: result.value.amount,
+                        payment_type: result.value.payment_type,
+                        extra_value: result.value.extra,
+                        remark: result.value.extra_remarks
+                    },
+                    success: function (response) {
+                        window.location.href = response.redirect_url;
+                    },
+                    error: function (err) {
+                        Swal.fire("Error!", (err.responseJSON && err.responseJSON.message) || "Payment failed", "error");
+                    }
+                });
             });
-
-
         })
 </script>
 @endsection

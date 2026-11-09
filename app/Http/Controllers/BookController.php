@@ -34,13 +34,13 @@ class BookController extends Controller
     {
         
         $request->validate([
-            'sku' => 'required',
-            'bar_code' => 'required',
+            'sku' => 'nullable',
+            'bar_code' => 'nullable',
             'title' => 'required',
             'subtitle' => 'nullable',
             'description' => 'nullable',
             'cost_price' => 'required|numeric',
-            'sell_price' => 'required|numeric',
+            'sell_price' => 'nullable|numeric',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ] + $this->unitRules(), $this->unitMessages());
         $data = $this->perBaseUnitPrices($request, $request->except('cover_image', 'author_id'));
@@ -87,7 +87,7 @@ class BookController extends Controller
             'published_at' => 'nullable',
             'description' => 'nullable',
             'cost_price' => 'required|numeric',
-            'sell_price' => 'required|numeric',
+            'sell_price' => 'nullable|numeric',
             'pages' => 'nullable',
             'language' => 'nullable',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -118,7 +118,9 @@ class BookController extends Controller
         if ($request->filled('conversion_factor')) {
             $factor = (float) $request->input('conversion_factor');
             $data['cost_price'] = round($request->input('cost_price') / $factor, 2);
-            $data['sell_price'] = round($request->input('sell_price') / $factor, 2);
+            if ($request->filled('sell_price')) {
+                $data['sell_price'] = round($request->input('sell_price') / $factor, 2);
+            }
         }
 
         return $data;

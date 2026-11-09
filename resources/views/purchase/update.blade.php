@@ -47,9 +47,10 @@
                         <label for="payment_type">Payment type <span class="text-danger">*</span></label>
                         <select id="payment_type" required class="form-control " name="payment_type">
                             <option value="" >Select Payment type</option>
-                            <option value="cash">Cash</option>
-                            <option value="online">Online</option>
-                            <option value="cheque">Cheque</option>
+                            <option value="cash" {{ $purchase->payment_type == 'cash' ? 'selected' : '' }}>Cash</option>
+                            <option value="online" {{ $purchase->payment_type == 'online' ? 'selected' : '' }}>Online</option>
+                            <option value="cheque" {{ $purchase->payment_type == 'cheque' ? 'selected' : '' }}>Cheque</option>
+                            <option value="credit" {{ $purchase->payment_type == 'credit' ? 'selected' : '' }}>Credit</option>
 
 
                         </select>

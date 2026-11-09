@@ -6,6 +6,34 @@
 @endsection
 
 @section('style')
+    <style>
+        #cart-table th:nth-child(2),
+        #cart-table td:nth-child(2) {
+            min-width: 220px;
+        }
+
+        #cart-table th:nth-child(3),
+        #cart-table td:nth-child(3) {
+            min-width: 200px;
+        }
+
+        .dual-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            align-items: end;
+        }
+
+        .dual-input-grid small {
+            display: block;
+            margin-bottom: 2px;
+            white-space: nowrap;
+        }
+
+        .dual-input-grid .form-control {
+            min-width: 78px;
+        }
+    </style>
 @endsection
 
 @section('breadcrumb-title')
@@ -39,7 +67,7 @@
 
                 <div class="col">
                     <select id="customer_id" class="form-control">
-                        <option value="">General Customer</option>
+                        <option value="">Loading customers...</option>
                     </select>
                 </div>
 
@@ -54,23 +82,23 @@
 
             <!-- CART -->
             <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="cart-table">
+                        <thead>
+                        <tr>
+                            <th>Items</th>
+                            <th>Items Price</th>
+                            <th>Quantity</th>
+                            <th width="120">Discount</th>
+                            <th>Line Total</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
 
-                <table class="table table-striped" id="cart-table">
+                        <tbody></tbody>
 
-                    <thead>
-                    <tr>
-                        <th>Items</th>
-                        <th>Items Price</th>
-                        <th width="170">Quantity</th>
-                        <th width="120">Discount</th>
-                        <th>Line Total</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-
-                    <tbody></tbody>
-
-                </table>
+                    </table>
+                </div>
 
             </div>
 
@@ -124,6 +152,39 @@
 
     </div>
 
+    <div class="modal fade" id="createCustomerModal" tabindex="-1" aria-labelledby="createCustomerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCustomerModalLabel">Create Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createCustomerForm">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="customer_name" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="customer_name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customer_phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="customer_phone" name="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="customer_address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="customer_address" name="address">
+                        </div>
+                        <div id="customer-form-errors" class="text-danger"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveCustomerBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('script')
@@ -148,6 +209,11 @@
         // DOCUMENT READY
         // -----------------------------
         $(document).ready(function () {
+            const createCustomerModalEl = document.getElementById('createCustomerModal');
+            const createCustomerModal = new bootstrap.Modal(createCustomerModalEl);
+            const customerStoreUrl = "{{ route('customer.store') }}";
+            let selectedCustomerId = "";
+            let walkingCustomerId = "";
 
             loadCustomers();
             loadProducts();
@@ -161,18 +227,99 @@
                 $.get(
                     BASE_URL + "/dashboard/get-all-customer",
                     function (customers) {
+                        const select = $("#customer_id");
+                        walkingCustomerId = customers.walking_customer_id ? String(customers.walking_customer_id) : "";
+
+                        select.html("");
 
                         customers.data.forEach(c => {
-
-                            $("#customer_id").append(`
-                            <option value="${c.id}">
-                                ${c.name}
-                            </option>
-                        `);
+                            select.append(`
+                                <option value="${c.id}">
+                                    ${c.name}
+                                </option>
+                            `);
                         });
+
+                        select.append(`
+                            <option value="create_new_customer">+ Create New Customer</option>
+                        `);
+
+                        if (walkingCustomerId) {
+                            select.val(walkingCustomerId);
+                            selectedCustomerId = walkingCustomerId;
+                        } else if (customers.data.length > 0) {
+                            select.val(String(customers.data[0].id));
+                            selectedCustomerId = String(customers.data[0].id);
+                        }
                     }
                 );
             }
+
+            $("#customer_id").on("change", function () {
+                const currentValue = $(this).val();
+
+                if (currentValue !== "create_new_customer") {
+                    selectedCustomerId = currentValue;
+                    return;
+                }
+
+                if ($(this).val() === "create_new_customer") {
+                    $("#customer-form-errors").empty();
+                    $("#createCustomerForm")[0].reset();
+                    createCustomerModal.show();
+                }
+            });
+
+            createCustomerModalEl.addEventListener("hidden.bs.modal", function () {
+                const currentValue = $("#customer_id").val();
+                if (currentValue === "create_new_customer") {
+                    $("#customer_id").val(selectedCustomerId || walkingCustomerId || "");
+                }
+            });
+
+            $("#saveCustomerBtn").on("click", function () {
+                const saveBtn = $(this);
+                saveBtn.prop("disabled", true);
+                $("#customer-form-errors").empty();
+
+                $.ajax({
+                    url: customerStoreUrl,
+                    method: "POST",
+                    data: $("#createCustomerForm").serialize(),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    },
+                    success: function (response) {
+                        const customer = response.data;
+                        const select = $("#customer_id");
+
+                        select.find('option[value="create_new_customer"]').before(
+                            `<option value="${customer.id}">${customer.name}</option>`
+                        );
+
+                        select.val(String(customer.id));
+                        createCustomerModal.hide();
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            let html = "<ul class='mb-0'>";
+                            Object.values(xhr.responseJSON.errors).forEach(function (messages) {
+                                messages.forEach(function (message) {
+                                    html += `<li>${message}</li>`;
+                                });
+                            });
+                            html += "</ul>";
+                            $("#customer-form-errors").html(html);
+                        } else {
+                            $("#customer-form-errors").text("Unable to create customer right now.");
+                        }
+                    },
+                    complete: function () {
+                        saveBtn.prop("disabled", false);
+                    }
+                });
+            });
 
             // -----------------------------
             // LOAD PRODUCTS
@@ -268,7 +415,7 @@
                     }
 
                     const qtyCell = isDual ? `
-                        <div class="d-flex gap-1">
+                        <div class="dual-input-grid">
                             <div>
                                 <small>${packUnit}s</small>
                                 <input type="text" oninput="validateNumber(this)"
@@ -299,10 +446,36 @@
 
                     const discount = item.pivot.discount || 0;
 
-                    const lineTotal =
-                        quantity *
-                        item.sell_price *
-                        (1 - discount / 100);
+                    // Prices are entered per transaction; nothing is defaulted from the product.
+                    const rollPrice = parseFloat(item.pivot.roll_price) || 0;
+                    const feetPrice = parseFloat(item.pivot.feet_price) || 0;
+                    const unitPrice = parseFloat(item.pivot.unit_price) || 0;
+
+                    const priceCell = isDual ? `
+                        <div class="dual-input-grid">
+                            <div>
+                                <small>${packUnit} Price</small>
+                                <input type="text" oninput="validateNumber(this)"
+                                    class="form-control form-control-sm roll-price-input"
+                                    value="${rollPrice}" data-id="${item.id}">
+                            </div>
+                            <div>
+                                <small>${baseUnit} Price</small>
+                                <input type="text" oninput="validateNumber(this)"
+                                    class="form-control form-control-sm feet-price-input"
+                                    value="${feetPrice}" data-id="${item.id}">
+                            </div>
+                        </div>
+                        <small class="text-muted breakdown"></small>
+                    ` : `
+                        <input type="text" oninput="validateNumber(this)"
+                            class="form-control form-control-sm price-input"
+                            name="book_price[]" value="${unitPrice}" data-id="${item.id}">
+                    `;
+
+                    const lineTotal = isDual
+                        ? calcDualGross(rollQty, rollPrice, feetQty, feetPrice) * (1 - discount / 100)
+                        : quantity * unitPrice * (1 - discount / 100);
 
                     total += lineTotal;
 
@@ -312,9 +485,8 @@
 
                         <td>${item.title}</td>
 
-                        <td class="text-right">
-                            ${item.sell_price}${isDual ? ' / ' + baseUnit : ''}
-                            ${isDual ? '<br><small class="text-muted">' + (item.sell_price * factor).toFixed(2) + ' / ' + packUnit + '</small>' : ''}
+                        <td>
+                            ${priceCell}
                         </td>
 
                         <td>
@@ -325,12 +497,6 @@
                             type="hidden"
                             name="book_id[]"
                             value="${item.id}"
-                        >
-
-                        <input
-                            type="hidden"
-                            name="book_price[]"
-                            value="${item.sell_price}"
                         >
 
                         <input
@@ -395,6 +561,24 @@
                 });
 
                 $("#cart-total").text(total.toFixed(2));
+                $("#cart-table tbody tr").each(function () { updateBreakdown($(this)); });
+            }
+
+            // Line gross for dual-unit items: two independent prices, no conversion involved.
+            function calcDualGross(rolls, rollPrice, feet, feetPrice) {
+                return Math.round(rolls * rollPrice * 100) / 100 + Math.round(feet * feetPrice * 100) / 100;
+            }
+
+            function updateBreakdown(row) {
+                const rollInput = row.find(".roll-input");
+                if (!rollInput.length) return;
+                const rolls = parseInt(rollInput.val(), 10) || 0;
+                const feet = parseInt(row.find(".feet-input").val(), 10) || 0;
+                const rp = parseFloat(row.find(".roll-price-input").val()) || 0;
+                const fp = parseFloat(row.find(".feet-price-input").val()) || 0;
+                row.find(".breakdown").text(
+                    `${rolls} × ${rp} = ${(rolls * rp).toFixed(2)}  +  ${feet} × ${fp} = ${(feet * fp).toFixed(2)}`
+                );
             }
 
             // -----------------------------
@@ -508,13 +692,20 @@
                 const discount =
                     parseFloat(row.find(".discount-input").val()) || 0;
 
-                const price =
-                    parseFloat(
-                        row.find('input[name="book_price[]"]').val()
-                    ) || 0;
+                let gross;
+                if (rollInput.length) {
+                    gross = calcDualGross(
+                        parseInt(rollInput.val(), 10) || 0,
+                        parseFloat(row.find(".roll-price-input").val()) || 0,
+                        parseInt(row.find(".feet-input").val(), 10) || 0,
+                        parseFloat(row.find(".feet-price-input").val()) || 0
+                    );
+                    updateBreakdown(row);
+                } else {
+                    gross = qty * (parseFloat(row.find(".price-input").val()) || 0);
+                }
 
-                const lineTotal =
-                    qty * price * (1 - discount / 100);
+                const lineTotal = gross * (1 - discount / 100);
 
                 row.find(".line-total").text(
                     lineTotal.toFixed(2)
@@ -576,6 +767,9 @@
                         quantity: qty,
                         roll_qty: parseInt(row.find(".roll-input").val(), 10) || 0,
                         feet_qty: parseInt(row.find(".feet-input").val(), 10) || 0,
+                        roll_price: parseFloat(row.find(".roll-price-input").val()) || 0,
+                        feet_price: parseFloat(row.find(".feet-price-input").val()) || 0,
+                        unit_price: parseFloat(row.find(".price-input").val()) || 0,
                         discount: discount
                     }
                 ).fail(err => {
@@ -594,7 +788,7 @@
             // -----------------------------
             $("#cart-table").on(
                 "input",
-                ".qty-input, .discount-input, .roll-input, .feet-input",
+                ".qty-input, .discount-input, .roll-input, .feet-input, .roll-price-input, .feet-price-input, .price-input",
                 function () {
 
                     const row = $(this).closest("tr");
@@ -703,8 +897,14 @@
 
                         price:
                             $(this)
-                                .find('input[name="book_price[]"]')
+                                .find('.price-input')
                                 .val(),
+
+                        roll_price:
+                            $(this).find('.roll-price-input').val(),
+
+                        feet_price:
+                            $(this).find('.feet-price-input').val(),
 
                         cost_price:
                             $(this)
