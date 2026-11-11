@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('publisher',\App\Http\Controllers\PublisherController::class);
         Route::resource('supplier',\App\Http\Controllers\SupplierController::class);
         Route::resource('book',\App\Http\Controllers\BookController::class);
+        Route::resource('categories', \App\Http\Controllers\CategoryController::class);
         Route::resource('purchase',\App\Http\Controllers\PurchaseController::class);
         Route::get('purchase/{purchase}/return', [\App\Http\Controllers\PurchaseReturnController::class, 'create'])->name('purchases.return.create');
         Route::resource('return-purchases', \App\Http\Controllers\PurchaseReturnController::class)->except(['edit', 'update', 'destroy', 'create']);

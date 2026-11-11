@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Book;
 use App\Models\SaleItem;
+use App\Services\SaleLinePricing;
 use App\Services\UnitConversion;
 use PHPUnit\Framework\TestCase;
 
@@ -83,5 +84,33 @@ class UnitConversionTest extends TestCase
         ]);
         $this->assertSame('2 Rolls + 7 Feet', $item->quantityLabel());
         $this->assertSame('5', (new SaleItem(['quantity' => 5]))->quantityLabel());
+        $this->assertSame('4 Pieces', (new SaleItem(['quantity' => 4, 'base_unit' => 'Pieces', 'unit_price' => 25]))->quantityLabel());
+        $this->assertSame('25.00 / Piece', (new SaleItem(['quantity' => 4, 'base_unit' => 'Pieces', 'unit_price' => 25]))->priceLabel());
+    }
+
+    public function test_pieces_product_uses_piece_quantity_and_price()
+    {
+        $book = new Book([
+            'title' => 'Nail',
+            'base_unit' => 'Pieces',
+            'purchase_unit' => 'Pieces',
+        ]);
+
+        $this->assertTrue($book->isPieces());
+        $this->assertFalse($book->isDualUnit());
+        $this->assertSame('12 Pieces', $book->stockLabel(12));
+        $this->assertSame('1 Piece', $book->stockLabel(1));
+        $this->assertSame('8.50 / Piece', $book->priceLabel(8.5));
+
+        $line = SaleLinePricing::calculate($book, [
+            'qty' => 4,
+            'price' => 10,
+            'discount' => 0,
+        ]);
+
+        $this->assertFalse($line['dual']);
+        $this->assertEquals(4, $line['quantity']);
+        $this->assertEquals(40, $line['gross']);
+        $this->assertSame('Pieces', $line['dual_fields']['base_unit']);
     }
 }

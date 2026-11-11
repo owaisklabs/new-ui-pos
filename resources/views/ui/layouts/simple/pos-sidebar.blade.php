@@ -58,13 +58,17 @@
 
                     <!-- Inventory & Items -->
                     <li class="sidebar-list">
-                        <a class="sidebar-link sidebar-title {{ request()->route()->getPrefix() == '/dashboard/book' || Route::currentRouteName() == 'inventory.index' ? 'active' : '' }}" href="#">
+                        @php
+                            $inventoryOpen = request()->routeIs('book.*') || request()->routeIs('categories.*') || Route::currentRouteName() == 'inventory.index';
+                        @endphp
+                        <a class="sidebar-link sidebar-title {{ $inventoryOpen ? 'active' : '' }}" href="#">
                             <i data-feather="package"></i>
                             <span>Inventory</span>
-                            <div class="according-menu"><i class="fa fa-angle-{{ request()->route()->getPrefix() == '/dashboard/book' ? 'down' : 'right' }}"></i></div>
+                            <div class="according-menu"><i class="fa fa-angle-{{ $inventoryOpen ? 'down' : 'right' }}"></i></div>
                         </a>
-                        <ul class="sidebar-submenu" style="display: {{ request()->route()->getPrefix() == '/dashboard/book' ? 'block;' : 'none;' }}">
+                        <ul class="sidebar-submenu" style="display: {{ $inventoryOpen ? 'block;' : 'none;' }}">
                             <li><a href="{{ route('book.index') }}" class="{{ Route::currentRouteName() == 'book.index' ? 'active' : '' }}">Books/Items</a></li>
+                            <li><a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}">Categories</a></li>
                             <li><a href="{{ route('inventory.index') }}" class="{{ Route::currentRouteName() == 'inventory.index' ? 'active' : '' }}">Stock</a></li>
                         </ul>
                     </li>

@@ -98,7 +98,7 @@
                                 <select id="book_id_0" required class="form-control book-select" name="items[0][book_id]">
                                     <option value="">Select Book</option>
                                     @foreach ($books as $item)
-                                        <option value="{{ $item->id }}" data-factor="{{ $item->isDualUnit() ? (float) $item->conversion_factor : '' }}" data-unit="{{ $item->purchase_unit ?: 'Roll' }}" data-base="{{ $item->base_unit ?: 'Feet' }}">{{ $item->title }}</option>
+                                        <option value="{{ $item->id }}" data-factor="{{ $item->isDualUnit() ? (float) $item->conversion_factor : '' }}" data-unit="{{ $item->purchase_unit ?: 'Roll' }}" data-base="{{ $item->base_unit ?: '' }}">{{ $item->title }}{{ $item->isPieces() ? ' (Pieces)' : ($item->isDualUnit() ? ' (Feet/Roll)' : '') }}</option>
                                     @endforeach
 
 
@@ -217,7 +217,7 @@
                                     <option value="">Select Book</option>
                                    @foreach ($books as $item)
 
-                                    <option value="{{ $item->id }}" data-factor="{{ $item->isDualUnit() ? (float) $item->conversion_factor : '' }}" data-unit="{{ $item->purchase_unit ?: 'Roll' }}" data-base="{{ $item->base_unit ?: 'Feet' }}">{{ $item->title }}</option>
+                                    <option value="{{ $item->id }}" data-factor="{{ $item->isDualUnit() ? (float) $item->conversion_factor : '' }}" data-unit="{{ $item->purchase_unit ?: 'Roll' }}" data-base="{{ $item->base_unit ?: '' }}">{{ $item->title }}{{ $item->isPieces() ? ' (Pieces)' : ($item->isDualUnit() ? ' (Feet/Roll)' : '') }}</option>
                                       @endforeach
 
                                 </select>
@@ -259,14 +259,19 @@
 
             function refreshUnitHint(rowEl) {
                 const opt = rowEl.find('select[name$="[book_id]"] option:selected');
-                const factor = parseFloat(opt.data('factor')) || 0;
+                const factor = parseFloat(opt.attr('data-factor')) || 0;
+                const rawBase = opt.attr('data-base') || '';
                 const hint = rowEl.find('.unit-hint');
                 const costLabel = rowEl.find('.unit-cost-label');
                 const qty = parseFloat(rowEl.find('.quantity-input').val()) || 0;
                 if (factor > 1) {
-                    const unit = opt.data('unit'), base = opt.data('base');
+                    const unit = opt.attr('data-unit') || 'Roll';
+                    const base = rawBase || 'Feet';
                     hint.text(`${unit}s | 1 ${unit} = ${factor} ${base} | Stock added: ${qty * factor} ${base}`);
                     costLabel.html(`Cost per ${unit} <span class="text-danger">*</span>`);
+                } else if (rawBase === 'Pieces') {
+                    hint.text(qty ? `${qty} Pieces will be added to stock` : 'Quantity is in pieces');
+                    costLabel.html('Cost per Piece <span class="text-danger">*</span>');
                 } else {
                     hint.text('');
                     costLabel.html('Unit Cost <span class="text-danger">*</span>');

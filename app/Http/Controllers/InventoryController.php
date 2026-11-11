@@ -14,7 +14,7 @@ class InventoryController extends Controller
      */
     public function index(Request $request)
     {
-        $inventories = Inventory::with('book');
+        $inventories = Inventory::with('book.category');
         if ($request->has('query')) {
             $filters = $request->query('query');
             if (!empty($filters['name'])) {

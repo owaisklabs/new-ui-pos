@@ -62,7 +62,7 @@ class PurchaseController extends Controller
     public function create()
     {
         $suppliers = Supplier::all();
-        $books = Book::all();
+        $books = Book::with('category')->orderBy('title')->get();
         return  view('purchase.create',compact('suppliers','books'));
     }
 
@@ -117,6 +117,18 @@ class PurchaseController extends Controller
                         'purchase_unit' => $book->purchase_unit ?: 'Roll',
                         'conversion_factor' => $factor,
                         'purchase_unit_cost' => $item['unit_cost'],
+                    ];
+                } elseif ($book->isPieces()) {
+                    $pieces = (int) $item['quantity'];
+                    if ($pieces < 1) {
+                        throw new \InvalidArgumentException("Enter a piece quantity of at least 1 for \"{$book->title}\".");
+                    }
+                    $baseQty = $pieces;
+                    $lineTotal = round($pieces * $item['unit_cost'], 2);
+                    $unitCost = $item['unit_cost'];
+                    $dual = [
+                        'purchase_qty' => $pieces,
+                        'purchase_unit' => 'Pieces',
                     ];
                 }
 

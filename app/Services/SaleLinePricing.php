@@ -79,7 +79,10 @@ class SaleLinePricing
             'discount' => $discount,
             'unit_price' => $price,
             'sale_price' => round($price * (1 - $discount / 100), 2),
-            'dual_fields' => [],
+            'dual_fields' => $book->isPieces() ? [
+                'purchase_unit' => 'Pieces',
+                'base_unit' => 'Pieces',
+            ] : [],
         ];
     }
 }

@@ -10,18 +10,41 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = [
-        'branch_id', 'sku', 'bar_code', 'title', 'subtitle', 'publisher_id', 'published_at',
+        'branch_id', 'sku', 'bar_code', 'title', 'category_id', 'subtitle', 'publisher_id', 'published_at',
         'description', 'cost_price', 'sell_price', 'cover_image', 'pages', 'language',
         'conversion_factor', 'purchase_unit', 'base_unit'
     ];
 
     public function isDualUnit(): bool
     {
-        return $this->conversion_factor !== null && (float) $this->conversion_factor > 1;
+        return !$this->isPieces()
+            && $this->conversion_factor !== null
+            && (float) $this->conversion_factor > 1;
+    }
+
+    public function isPieces(): bool
+    {
+        if ($this->base_unit === 'Pieces') {
+            return true;
+        }
+
+        if ($this->base_unit !== null && $this->base_unit !== '') {
+            return false;
+        }
+
+        if (!$this->category_id) {
+            return false;
+        }
+
+        return (bool) optional($this->category)->isPieces();
     }
 
     public function priceLabel($price): string
     {
+        if ($this->isPieces()) {
+            return number_format($price, 2) . ' / Piece';
+        }
+
         if (!$this->isDualUnit()) {
             return (string) $price;
         }
@@ -32,6 +55,13 @@ class Book extends Model
 
     public function stockLabel($quantity): string
     {
+        if ($this->isPieces()) {
+            $qty = (float) $quantity;
+            $shown = ((int) $qty == $qty) ? (string) (int) $qty : (string) $qty;
+
+            return $shown . ($qty == 1.0 ? ' Piece' : ' Pieces');
+        }
+
         if (!$this->isDualUnit()) {
             return (string) $quantity;
         }
@@ -53,6 +83,11 @@ class Book extends Model
     public function getCoverImageUrlAttribute()
     {
         return asset('storage/' . $this->cover_image);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function authors()

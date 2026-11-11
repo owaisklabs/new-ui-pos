@@ -356,6 +356,9 @@
                                     <h6 class="mt-2">
                                         ${p.title}
                                     </h6>
+                                    ${(p.base_unit === 'Pieces')
+                                        ? '<small class="text-muted d-block">Pieces</small>'
+                                        : ((parseFloat(p.conversion_factor) || 0) > 1 ? '<small class="text-muted d-block">Feet/Roll</small>' : '')}
 
                                 </div>
 
@@ -406,6 +409,7 @@
                     const quantity = item.pivot.quantity;
                     const factor = parseFloat(item.conversion_factor) || 0;
                     const isDual = factor > 1;
+                    const isPieces = !isDual && item.base_unit === 'Pieces';
                     const packUnit = item.purchase_unit || 'Roll';
                     const baseUnit = item.base_unit || 'Feet';
                     const rollQty = parseInt(item.pivot.roll_qty, 10) || 0;
@@ -434,6 +438,7 @@
                         <small class="text-info equiv">= ${quantity} ${baseUnit}</small>
                         <input type="hidden" class="qty-input" name="qty[]" value="${quantity}" data-id="${item.id}">
                     ` : `
+                        ${isPieces ? '<small>Pieces</small>' : ''}
                         <input
                             type="text"
                             oninput="validateNumber(this)"
@@ -468,6 +473,7 @@
                         </div>
                         <small class="text-muted breakdown"></small>
                     ` : `
+                        ${isPieces ? '<small>Price / Piece</small>' : ''}
                         <input type="text" oninput="validateNumber(this)"
                             class="form-control form-control-sm price-input"
                             name="book_price[]" value="${unitPrice}" data-id="${item.id}">

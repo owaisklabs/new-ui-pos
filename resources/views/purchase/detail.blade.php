@@ -127,7 +127,7 @@
 
                 <td>{{ $item->quantityLabel() }}</td>
 
-                <td>{{ number_format($item->isDualUnit() ? $item->purchase_unit_cost : $item->unit_cost, 2) }}{{ $item->isDualUnit() ? ' / ' . ($item->purchase_unit ?: 'Roll') : '' }}</td>
+                <td>{{ $item->costLabel() }}</td>
 
 
                 <td>{{ number_format($item->line_total, 2) }}</td>

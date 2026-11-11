@@ -121,11 +121,12 @@ class SaleController extends Controller
                     $line = SaleLinePricing::calculate($book, $item);
                     $quantity = $line['quantity'];
 
-                    if ($line['dual']) {
+                    if ($line['dual'] || $book->isPieces()) {
                         $available = (float) Inventory::where('book_id', $book->id)->lockForUpdate()->value('quantity');
                         if ($quantity > $available) {
+                            $unit = $book->isPieces() ? 'Pieces' : ($book->base_unit ?: 'Feet');
                             throw new StockException(
-                                "Insufficient stock for \"{$book->title}\". Available: {$available} " . ($book->base_unit ?: 'Feet') . ", requested: {$quantity}."
+                                "Insufficient stock for \"{$book->title}\". Available: {$available} {$unit}, requested: {$quantity}."
                             );
                         }
                     }

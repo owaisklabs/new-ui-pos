@@ -59,6 +59,7 @@
                             <th scope="col">#</th>
                             <th scope="col">SKU</th>
                             <th scope="col">Title</th>
+                            <th scope="col">Category</th>
                             <th scope="col">Qty</th>
                             <th scope="col">Cost Price</th>
                             <th scope="col">Action</th>
@@ -70,6 +71,7 @@
                             <th scope="row">{{$item->id}}</th>
                             <td>{{$item->sku}}</td>
                             <td>{{$item->title}}</td>
+                            <td>{{ $item->category->name ?? '-' }}</td>
 
                             <td>{{ $item->inventory ? $item->stockLabel($item->inventory->quantity) : "-" }}</td>
                             <td>{{ $item->priceLabel($item->cost_price) }}</td>

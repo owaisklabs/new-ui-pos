@@ -13,7 +13,7 @@ class CartController extends Controller
         return response()->json([
             "status"  => JsonResponse::HTTP_OK,
             "message" => "cart Fetch successfully",
-            "data"  => $request->user()->cart()->get(),
+            "data"  => $request->user()->cart()->with('category')->get(),
         ], JsonResponse::HTTP_OK);
 
     }

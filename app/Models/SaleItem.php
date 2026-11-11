@@ -29,6 +29,10 @@ class SaleItem extends Model
     public function priceLabel(): string
     {
         if (!$this->isDualUnit()) {
+            if ($this->base_unit === 'Pieces') {
+                return number_format($this->unit_price, 2) . ' / Piece';
+            }
+
             return number_format($this->unit_price, 2);
         }
         $parts = [];
@@ -48,9 +52,18 @@ class SaleItem extends Model
 
     public function quantityLabel(): string
     {
-        return $this->isDualUnit()
-            ? \App\Services\UnitConversion::format($this->roll_qty, $this->feet_qty, $this->purchase_unit, $this->base_unit)
-            : (string) $this->quantity;
+        if ($this->isDualUnit()) {
+            return \App\Services\UnitConversion::format($this->roll_qty, $this->feet_qty, $this->purchase_unit, $this->base_unit);
+        }
+
+        if ($this->base_unit === 'Pieces') {
+            $qty = (float) $this->quantity;
+            $shown = ((int) $qty == $qty) ? (string) (int) $qty : (string) $qty;
+
+            return $shown . ($qty == 1.0 ? ' Piece' : ' Pieces');
+        }
+
+        return (string) $this->quantity;
     }
 
     public function sale()

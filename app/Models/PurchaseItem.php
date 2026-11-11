@@ -18,10 +18,32 @@ class PurchaseItem extends Model
 
     public function quantityLabel(): string
     {
-        return $this->isDualUnit()
-            ? $this->purchase_qty . ' ' . ($this->purchase_unit ?: 'Roll') . ($this->purchase_qty == 1 ? '' : 's')
-                . ' (' . $this->quantity . ' Feet)'
-            : (string) $this->quantity;
+        if ($this->isDualUnit()) {
+            return $this->purchase_qty . ' ' . ($this->purchase_unit ?: 'Roll') . ($this->purchase_qty == 1 ? '' : 's')
+                . ' (' . $this->quantity . ' Feet)';
+        }
+
+        if ($this->purchase_unit === 'Pieces') {
+            $qty = (float) $this->quantity;
+            $shown = ((int) $qty == $qty) ? (string) (int) $qty : (string) $qty;
+
+            return $shown . ($qty == 1.0 ? ' Piece' : ' Pieces');
+        }
+
+        return (string) $this->quantity;
+    }
+
+    public function costLabel(): string
+    {
+        if ($this->isDualUnit()) {
+            return number_format($this->purchase_unit_cost, 2) . ' / ' . ($this->purchase_unit ?: 'Roll');
+        }
+
+        if ($this->purchase_unit === 'Pieces') {
+            return number_format($this->unit_cost, 2) . ' / Piece';
+        }
+
+        return number_format($this->unit_cost, 2);
     }
 
     public function purchase()
